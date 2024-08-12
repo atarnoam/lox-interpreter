@@ -22,17 +22,58 @@ const Token &Parser::advance() {
 std::unique_ptr<Expr> Parser::expression() { return equality(); }
 
 std::unique_ptr<Expr> Parser::equality() {
-    // auto expr = comparison();
-    auto expr = primary();
+    auto expr = comparison();
     while (match(BANG_EQUAL, EQUAL_EQUAL)) {
         Token op = previous();
-        auto right = primary();
+        auto right = comparison();
         auto left = std::move(expr);
         expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
     }
     return expr;
 }
-std::unique_ptr<Expr> Parser::comparison() { return nullptr; }
+
+std::unique_ptr<Expr> Parser::comparison() {
+    auto expr = term();
+    while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
+        Token op = previous();
+        auto right = term();
+        auto left = std::move(expr);
+        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+    }
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::term() {
+    auto expr = factor();
+    while (match(MINUS, PLUS)) {
+        Token op = previous();
+        auto right = factor();
+        auto left = std::move(expr);
+        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+    }
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::factor() {
+    auto expr = unary();
+    while (match(MINUS, PLUS)) {
+        Token op = previous();
+        auto right = unary();
+        auto left = std::move(expr);
+        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+    }
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::unary() {
+    if (match(MINUS, BANG)) {
+        Token op = previous();
+        auto right = unary();
+        return std::make_unique<Unary>(op, std::move(right));
+    }
+    return primary();
+}
+
 std::unique_ptr<Expr> Parser::primary() {
     auto token = advance();
     std::unique_ptr<Expr> expr;
