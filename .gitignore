@@ -33,3 +33,5 @@
 
 bazel-**
 MODULE.bazel.lock
+
+.vscode
