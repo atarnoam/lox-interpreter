@@ -2,6 +2,7 @@
 
 #include "src/semantics/lox_object.h"
 #include "src/syntactics/expr.h"
+#include "src/syntactics/stmt.h"
 
 #include <stdexcept>
 #include <string>

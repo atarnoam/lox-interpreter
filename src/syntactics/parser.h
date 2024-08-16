@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/syntactics/expr.h"
+#include "src/syntactics/stmt.h"
 #include "src/syntactics/token.h"
 #include "src/tp_utils.h"
 
@@ -11,7 +12,7 @@
 struct Parser {
     explicit Parser(std::vector<Token> tokens);
 
-    std::unique_ptr<Expr> parse();
+    std::vector<std::unique_ptr<Stmt>> parse();
     struct ParseError : std::runtime_error {
         explicit ParseError(const std::string &what);
     };
@@ -36,8 +37,11 @@ struct Parser {
     const Token &advance();
     const Token &consume(TokenType type, const std::string &message);
 
-    std::unique_ptr<Expr> expression();
+    std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> print_statement();
+    std::unique_ptr<Stmt> expression_statement();
 
+    std::unique_ptr<Expr> expression();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();

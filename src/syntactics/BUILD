@@ -19,10 +19,11 @@ cc_library(
     srcs = ["parser.cc"],
     hdrs = ["parser.h"],
     deps = [
+        ":expr",
+        ":stmt",
         ":token",
         "//src:logging",
         "//src:tp_utils",
-        "//src/syntactics:expr",
     ],
 )
 

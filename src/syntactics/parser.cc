@@ -4,12 +4,15 @@
 Parser::Parser(std::vector<Token> tokens)
     : tokens(std::move(tokens)), curr(0), m_had_error(false) {}
 
-std::unique_ptr<Expr> Parser::parse() {
-    try {
-        return expression();
-    } catch (const ParseError &error) {
-        return nullptr;
+std::vector<std::unique_ptr<Stmt>> Parser::parse() {
+    std::vector<std::unique_ptr<Stmt>> statements;
+    while (!is_at_end()) {
+        try {
+            statements.push_back(std::move(statement()));
+        } catch (const ParseError &error) {
+        }
     }
+    return statements;
 }
 
 bool Parser::had_error() const { return m_had_error; }
@@ -38,6 +41,25 @@ const Token &Parser::consume(TokenType type, const std::string &message) {
         throw parse_error(peek(), message);
     }
     return advance();
+}
+
+std::unique_ptr<Stmt> Parser::statement() {
+    if (match(PRINT)) {
+        return print_statement();
+    }
+    return expression_statement();
+}
+
+std::unique_ptr<Stmt> Parser::print_statement() {
+    auto expr = expression();
+    consume(SEMICOLON, "Expect ; after value.");
+    return make_unique<Print>(std::move(expr));
+}
+
+std::unique_ptr<Stmt> Parser::expression_statement() {
+    auto expr = expression();
+    consume(SEMICOLON, "Expect ; after value.");
+    return make_unique<Expression>(std::move(expr));
 }
 
 std::unique_ptr<Expr> Parser::expression() { return equality(); }

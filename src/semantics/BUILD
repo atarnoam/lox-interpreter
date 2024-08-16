@@ -20,5 +20,6 @@ cc_library(
         "//src:logging",
         "//src:tp_utils",
         "//src/syntactics:expr",
+        "//src/syntactics:stmt",
     ],
 )
