@@ -162,7 +162,7 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
                     const std::vector<SubclassName> &subclasses) {
     os_h << fmt::format("struct {} {{", visitor_name) << std::endl;
     for (const auto &subclass_name : subclasses) {
-        os_h << fmt::format("   virtual void visit_{0}(const {1} &{0}) = 0;",
+        os_h << fmt::format("    virtual void visit_{0}(const {1} &{0}) = 0;",
                             to_lower(subclass_name), subclass_name)
              << std::endl;
         ;
@@ -171,7 +171,8 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
 }
 
 void define_ast(fs::path output_dir, const std::string &base_name,
-                const std::vector<std::string> &subclass_strs) {
+                const std::vector<std::string> &subclass_strs,
+                const std::vector<std::string> &includes = {}) {
     auto subclasses = parse_subclasses(subclass_strs);
     output_dir = output_dir / "syntactics";
     std::cout << output_dir << std::endl;
@@ -181,11 +182,11 @@ void define_ast(fs::path output_dir, const std::string &base_name,
     std::string visitor_name = fmt::format("{}Visitor", base_name);
 
     // Headers of .h
-    ofile_h << R"###(#pragma once
-#include <memory>
-#include "src/syntactics/token.h")###"
-            << std::endl
-            << std::endl;
+    ofile_h << "#pragma once" << std::endl;
+    for (const auto &include : includes) {
+        ofile_h << fmt::format("#include \"src/{}\"", include) << std::endl;
+    }
+    ofile_h << "#include <memory>" << std::endl << std::endl;
 
     // Headers of .cc
     ofile_cc << fmt::format("#include \"src/syntactics/{}.h\"",
@@ -223,13 +224,20 @@ int main(int argc, char **argv) {
         return 1;
     }
     std::string output_dir = argv[1];
-    std::string base_name = "Expr";
-    std::vector<std::string> types{
-        "Binary : Expr left, Token op, Expr right",
-        "Grouping : Expr expression",
-        "Literal  : Token value",
-        "Unary    : Token op, Expr right",
+    define_ast(output_dir, "Expr",
+               {
+                   "Binary : Expr left, Token op, Expr right",
+                   "Grouping : Expr expression",
+                   "Literal  : Token value",
+                   "Unary    : Token op, Expr right",
 
-    };
-    define_ast(output_dir, base_name, types);
+               },
+               {"syntactics/token.h"});
+
+    define_ast(output_dir, "Stmt",
+               {
+                   "Expression : std::unique_ptr<Expr> expression",
+                   "Print : std::unique_ptr<Expr> expression",
+               },
+               {"syntactics/expr.h"});
 }
