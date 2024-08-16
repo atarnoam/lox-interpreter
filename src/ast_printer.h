@@ -17,9 +17,8 @@ struct AstPrinter : ExprVisitor {
 
   private:
     template <typename... Args>
+    requires are_all_eq<Expr, Args...>
     void parenthesize(const std::string &name, const Args *...exprs) {
-        static_assert(are_all_eq<Expr, Args...>(),
-                      "Arguments to parenthesize must all be Expr*.");
         result << "(" << name << " ";
         bool first_iter = true;
         for (const auto &expr : {exprs...}) {

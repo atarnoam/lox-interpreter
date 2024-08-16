@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.cppStandard": "c++20",
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "*.cu": "cpp",
+        "*.cuh": "cpp",
+        "memory": "cpp"
+    }
+}

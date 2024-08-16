@@ -11,8 +11,8 @@ struct Parser {
 
     bool is_at_end() const;
 
-    template <typename... Args> bool match(Args... token_types) {
-        static_assert(are_all_eq<TokenType, Args...>());
+    template <typename... Args>
+    bool match(Args... token_types) requires are_all_eq<TokenType, Args...> {
         for (auto token_type : {token_types...}) {
             if (check(token_type)) {
                 advance();

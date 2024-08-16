@@ -1,9 +1,10 @@
 #pragma once
+#include <concepts>
 #include <type_traits>
 
-template <typename S> constexpr bool are_all_eq() { return true; }
+template <typename TypeToCheck, typename TypeToCheckAgainst>
+concept type_is =
+    std::same_as<std::remove_cvref_t<TypeToCheck>, TypeToCheckAgainst>;
 
-template <typename S, typename T, typename... Args>
-constexpr bool are_all_eq() {
-    return std::is_same_v<S, T> && are_all_eq<S, Args...>();
-}
+template <typename S, typename... Args>
+concept are_all_eq = (type_is<S, Args> && ...);
