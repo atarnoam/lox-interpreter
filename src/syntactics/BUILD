@@ -8,6 +8,13 @@ cc_library(
 )
 
 cc_library(
+    name = "stmt",
+    srcs = ["stmt.cc"],
+    hdrs = ["stmt.h"],
+    deps = [":expr"],
+)
+
+cc_library(
     name = "parser",
     srcs = ["parser.cc"],
     hdrs = ["parser.h"],
