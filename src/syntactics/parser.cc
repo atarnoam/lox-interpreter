@@ -77,7 +77,7 @@ std::unique_ptr<Expr> Parser::term() {
 
 std::unique_ptr<Expr> Parser::factor() {
     auto expr = unary();
-    while (match(MINUS, PLUS)) {
+    while (match(STAR, SLASH)) {
         Token op = previous();
         auto right = unary();
         auto left = std::move(expr);

@@ -14,7 +14,7 @@ cc_library(
     deps = [
         ":token",
         "//src:logging",
-        "//src:variadic",
+        "//src:tp_utils",
         "//src/syntactics:expr",
     ],
 )

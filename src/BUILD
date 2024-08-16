@@ -5,6 +5,7 @@ cc_binary(
     srcs = ["main.cc"],
     deps = [
         ":ast_printer",
+        "//src/semantics:interpreter",
         "//src/syntactics:expr",
         "//src/syntactics:parser",
         "//src/syntactics:scanner",
@@ -17,14 +18,14 @@ cc_library(
     srcs = ["ast_printer.cc"],
     hdrs = ["ast_printer.h"],
     deps = [
-        ":variadic",
+        ":tp_utils",
         "//src/syntactics:expr",
     ],
 )
 
 cc_library(
-    name = "variadic",
-    hdrs = ["variadic.h"],
+    name = "tp_utils",
+    hdrs = ["tp_utils.h"],
 )
 
 cc_library(
@@ -32,7 +33,7 @@ cc_library(
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
     deps = [
-        ":variadic",
+        ":tp_utils",
         "//src/syntactics:expr",
         "//src/syntactics:token",
         "@fmt",

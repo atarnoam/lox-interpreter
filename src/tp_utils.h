@@ -23,3 +23,6 @@ auto variant_cast(const std::variant<Args...> &v)
     -> variant_cast_proxy<Args...> {
     return {v};
 }
+
+template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;

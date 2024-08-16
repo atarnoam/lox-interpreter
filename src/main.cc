@@ -1,4 +1,5 @@
 #include "src/ast_printer.h"
+#include "src/semantics/interpreter.h"
 #include "src/syntactics/expr.h"
 #include "src/syntactics/parser.h"
 #include "src/syntactics/scanner.h"
@@ -14,20 +15,33 @@ int interpret_stream(std::istream &&is) {
 
     auto tokens = scanner.scan_tokens();
     if (scanner.had_error) {
-        return 65;
+        return 64;
     }
 
     Parser parser(std::move(tokens));
 
     std::unique_ptr<Expr> expr = parser.parse();
     if (parser.had_error()) {
-        return 64;
+        return 65;
     }
 
-    AstPrinter printer{};
-    expr->accept(printer);
-    std::cout << printer.get_string() << std::endl;
+    Interpreter interpreter{};
+    interpreter.interpret(expr.get());
+    if (interpreter.had_runtime_error()) {
+        return 70;
+    }
 
+    return 0;
+}
+
+int run_interpreter() {
+    std::string s;
+    std::cout << "> ";
+    while (std::getline(std::cin, s)) {
+        interpret_stream(std::stringstream(s));
+        std::cout << "> ";
+    }
+    std::cout << std::endl;
     return 0;
 }
 
@@ -37,9 +51,12 @@ int run_file(char *filename) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
+    if (argc == 1) {
+        return run_interpreter();
+    } else if (argc == 2) {
+        return run_file(argv[1]);
+    } else {
         std::cout << "Usage: jlox [script]" << std::endl;
         return 1;
     }
-    return run_file(argv[1]);
 }
