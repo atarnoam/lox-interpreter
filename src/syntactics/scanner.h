@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "src/token.h"
+#include "src/syntactics/token.h"
 
 struct Scanner {
     explicit Scanner(std::istream &&is);

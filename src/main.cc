@@ -1,8 +1,8 @@
 #include "src/ast_printer.h"
-#include "src/expr.h"
-#include "src/parser.h"
-#include "src/scanner.h"
-#include "src/token.h"
+#include "src/syntactics/expr.h"
+#include "src/syntactics/parser.h"
+#include "src/syntactics/scanner.h"
+#include "src/syntactics/token.h"
 
 #include <fstream>
 #include <iostream>

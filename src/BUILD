@@ -1,36 +1,15 @@
+package(default_visibility = ["//visibility:public"])
+
 cc_binary(
     name = "main",
     srcs = ["main.cc"],
     deps = [
         ":ast_printer",
-        ":expr",
-        ":parser",
-        ":scanner",
-        ":token",
+        "//src/syntactics:expr",
+        "//src/syntactics:parser",
+        "//src/syntactics:scanner",
+        "//src/syntactics:token",
     ],
-)
-
-cc_library(
-    name = "scanner",
-    srcs = ["scanner.cc"],
-    hdrs = ["scanner.h"],
-    deps = [
-        ":logging",
-        ":token",
-    ],
-)
-
-cc_library(
-    name = "token",
-    srcs = ["token.cc"],
-    hdrs = ["token.h"],
-)
-
-cc_library(
-    name = "expr",
-    srcs = ["expr.cc"],
-    hdrs = ["expr.h"],
-    deps = [":token"],
 )
 
 cc_library(
@@ -38,8 +17,8 @@ cc_library(
     srcs = ["ast_printer.cc"],
     hdrs = ["ast_printer.h"],
     deps = [
-        ":expr",
         ":variadic",
+        "//src/syntactics:expr",
     ],
 )
 
@@ -49,25 +28,13 @@ cc_library(
 )
 
 cc_library(
-    name = "parser",
-    srcs = ["parser.cc"],
-    hdrs = ["parser.h"],
-    deps = [
-        ":expr",
-        ":logging",
-        ":token",
-        ":variadic",
-    ],
-)
-
-cc_library(
     name = "logging",
     srcs = ["logging.cc"],
     hdrs = ["logging.h"],
     deps = [
-        ":expr",
-        ":token",
         ":variadic",
+        "//src/syntactics:expr",
+        "//src/syntactics:token",
         "@fmt",
     ],
 )

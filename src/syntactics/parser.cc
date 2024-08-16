@@ -1,5 +1,5 @@
 #include "src/logging.h"
-#include "src/parser.h"
+#include "src/syntactics/parser.h"
 
 Parser::Parser(std::vector<Token> tokens)
     : tokens(std::move(tokens)), curr(0), m_had_error(false) {}

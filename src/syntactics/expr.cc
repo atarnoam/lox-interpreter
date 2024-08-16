@@ -1,4 +1,4 @@
-#include "src/expr.h"
+#include "src/syntactics/expr.h"
 
 Binary::Binary(std::unique_ptr<Expr> left, Token op,
                std::unique_ptr<Expr> right)

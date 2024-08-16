@@ -1,5 +1,5 @@
 #include "src/logging.h"
-#include "src/scanner.h"
+#include "src/syntactics/scanner.h"
 
 #include <iostream>
 #include <sstream>

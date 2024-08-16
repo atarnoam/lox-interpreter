@@ -4,8 +4,6 @@
     "files.associations": {
         "*.cu": "cpp",
         "*.cuh": "cpp",
-        "memory": "cpp",
-        "string": "cpp",
-        "stdexcept": "cpp"
-    }
+        "/usr/include/c++/**/**": "cpp",
+    },
 }

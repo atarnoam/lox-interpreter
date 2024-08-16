@@ -170,9 +170,10 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
     os_h << "};" << std::endl << std::endl;
 }
 
-void define_ast(const fs::path &output_dir, const std::string &base_name,
+void define_ast(fs::path output_dir, const std::string &base_name,
                 const std::vector<std::string> &subclass_strs) {
     auto subclasses = parse_subclasses(subclass_strs);
+    output_dir = output_dir / "syntactics";
     std::cout << output_dir << std::endl;
     std::ofstream ofile_h(output_dir / (to_lower(base_name) + ".h"));
     std::ofstream ofile_cc(output_dir / (to_lower(base_name) + ".cc"));
@@ -182,12 +183,13 @@ void define_ast(const fs::path &output_dir, const std::string &base_name,
     // Headers of .h
     ofile_h << R"###(#pragma once
 #include <memory>
-#include "src/token.h")###"
+#include "src/syntactics/token.h")###"
             << std::endl
             << std::endl;
 
     // Headers of .cc
-    ofile_cc << fmt::format("#include \"src/{}.h\"", to_lower(base_name))
+    ofile_cc << fmt::format("#include \"src/syntactics/{}.h\"",
+                            to_lower(base_name))
              << std::endl
              << std::endl;
 

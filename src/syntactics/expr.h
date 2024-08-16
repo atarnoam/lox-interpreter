@@ -1,5 +1,5 @@
 #pragma once
-#include "src/token.h"
+#include "src/syntactics/token.h"
 #include <memory>
 
 struct Expr;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/expr.h"
-#include "src/token.h"
+#include "src/syntactics/expr.h"
+#include "src/syntactics/token.h"
 #include "src/variadic.h"
 
 #include <memory>
