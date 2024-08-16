@@ -18,12 +18,4 @@ void AstPrinter::visit_unary(const Unary &unary) {
     parenthesize(unary.op.lexeme, unary.right.get());
 }
 
-// void AstPrinter::parenthesize(
-//     const std::string &name, const std::initializer_list<const Expr &>
-//     &exprs) { result << "(" << name << " "; for (const auto &expr : exprs) {
-//         expr->accept(*this);
-//     }
-//     result << ")";
-// }
-
 std::string AstPrinter::get_string() const { return result.str(); }
