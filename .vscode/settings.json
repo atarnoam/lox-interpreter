@@ -4,6 +4,8 @@
     "files.associations": {
         "*.cu": "cpp",
         "*.cuh": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "string": "cpp",
+        "stdexcept": "cpp"
     }
 }

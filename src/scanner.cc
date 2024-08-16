@@ -1,3 +1,4 @@
+#include "src/logging.h"
 #include "src/scanner.h"
 
 #include <iostream>
@@ -9,10 +10,6 @@ const std::unordered_map<std::string, TokenType> keywords{
     {"for", FOR},   {"fun", FUN},     {"if", IF},         {"nil", NIL},
     {"or", OR},     {"print", PRINT}, {"return", RETURN}, {"super", SUPER},
     {"this", THIS}, {"true", TRUE},   {"var", VAR},       {"while", WHILE}};
-
-void log_error(int line, const std::string &error) {
-    std::cerr << "[line " << line << "]: " << error << std::endl;
-}
 
 Scanner::Scanner(std::istream &&is)
     : had_error(false), token_start_idx(0), curr_idx(0), line(1) {
@@ -35,9 +32,11 @@ Token &Scanner::add_token(TokenType type, std::string literal) {
         std::move(literal));
 }
 
-void Scanner::log_error(const std::string &error) const {
-    ::log_error(line, error);
+void Scanner::log_error(const std::string &message) {
+    had_error = true;
+    error(line, message);
 }
+
 bool Scanner::is_at_end() const { return curr_idx >= source.length(); }
 
 std::string Scanner::curr_token() {

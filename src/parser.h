@@ -3,12 +3,21 @@
 #include "src/expr.h"
 #include "src/token.h"
 #include "src/variadic.h"
+
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 struct Parser {
-    Parser(std::vector<Token> tokens);
+    explicit Parser(std::vector<Token> tokens);
 
+    std::unique_ptr<Expr> parse();
+    struct ParseError : std::runtime_error {
+        explicit ParseError(const std::string &what);
+    };
+    bool had_error() const;
+
+  private:
     bool is_at_end() const;
 
     template <typename... Args>
@@ -25,19 +34,21 @@ struct Parser {
     const Token &peek() const;
     const Token &previous() const;
     const Token &advance();
+    const Token &consume(TokenType type, const std::string &message);
 
     std::unique_ptr<Expr> expression();
 
-    bool had_error;
-
-  private:
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Expr> unary();
     std::unique_ptr<Expr> primary();
+    ParseError parse_error(const Token &token, const std::string &message);
 
     std::vector<Token> tokens;
     size_t curr;
+    bool m_had_error;
 };
+
+std::string report_parse_error(const Token &token, const std::string &message);

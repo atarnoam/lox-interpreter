@@ -14,7 +14,10 @@ cc_library(
     name = "scanner",
     srcs = ["scanner.cc"],
     hdrs = ["scanner.h"],
-    deps = [":token"],
+    deps = [
+        ":logging",
+        ":token",
+    ],
 )
 
 cc_library(
@@ -51,7 +54,20 @@ cc_library(
     hdrs = ["parser.h"],
     deps = [
         ":expr",
+        ":logging",
         ":token",
         ":variadic",
+    ],
+)
+
+cc_library(
+    name = "logging",
+    srcs = ["logging.cc"],
+    hdrs = ["logging.h"],
+    deps = [
+        ":expr",
+        ":token",
+        ":variadic",
+        "@fmt",
     ],
 )

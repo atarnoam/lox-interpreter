@@ -7,7 +7,7 @@
 #include "src/token.h"
 
 struct Scanner {
-    Scanner(std::istream &&is);
+    explicit Scanner(std::istream &&is);
 
     Token &add_token(TokenType type);
     Token &add_token(TokenType type, double number);
@@ -17,7 +17,7 @@ struct Scanner {
     bool had_error;
 
   private:
-    void log_error(const std::string &error) const;
+    void log_error(const std::string &error);
     bool is_at_end() const;
 
     std::string curr_token();

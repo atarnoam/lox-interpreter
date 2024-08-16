@@ -11,22 +11,19 @@
 
 int interpret_stream(std::istream &&is) {
     Scanner scanner(std::move(is));
+
+    auto tokens = scanner.scan_tokens();
     if (scanner.had_error) {
-        std::cerr << "Scanner had error" << std::endl;
         return 65;
     }
-    auto tokens = scanner.scan_tokens();
 
-    for (const Token &t : tokens) {
-        std::cout << t << std::endl;
-    }
     Parser parser(std::move(tokens));
 
-    std::unique_ptr<Expr> expr = parser.expression();
-    if (parser.had_error) {
-        std::cerr << "Parser had error" << std::endl;
+    std::unique_ptr<Expr> expr = parser.parse();
+    if (parser.had_error()) {
         return 64;
     }
+
     AstPrinter printer{};
     expr->accept(printer);
     std::cout << printer.get_string() << std::endl;
