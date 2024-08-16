@@ -10,7 +10,7 @@
 #include <memory>
 #include <sstream>
 
-int interpret_stream(std::istream &&is) {
+int interpret_stream(Interpreter &interpreter, std::istream &&is) {
     Scanner scanner(std::move(is));
 
     auto tokens = scanner.scan_tokens();
@@ -25,7 +25,6 @@ int interpret_stream(std::istream &&is) {
         return 65;
     }
 
-    Interpreter interpreter{};
     interpreter.interpret(expr.get());
     if (interpreter.had_runtime_error()) {
         return 70;
@@ -35,10 +34,12 @@ int interpret_stream(std::istream &&is) {
 }
 
 int run_interpreter() {
+    Interpreter interpreter{};
+
     std::string s;
     std::cout << "> ";
     while (std::getline(std::cin, s)) {
-        interpret_stream(std::stringstream(s));
+        interpret_stream(interpreter, std::stringstream(s));
         std::cout << "> ";
     }
     std::cout << std::endl;
@@ -46,8 +47,9 @@ int run_interpreter() {
 }
 
 int run_file(char *filename) {
+    Interpreter interpreter;
     std::ifstream ifs(filename);
-    return interpret_stream(std::move(ifs));
+    return interpret_stream(interpreter, std::move(ifs));
 }
 
 int main(int argc, char **argv) {
