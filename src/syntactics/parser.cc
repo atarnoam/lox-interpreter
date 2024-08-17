@@ -75,6 +75,10 @@ std::unique_ptr<Stmt> Parser::statement() {
     if (match(WHILE)) {
         return while_statement();
     }
+    if (match(FOR)) {
+        return for_statement();
+    }
+
     if (match(PRINT)) {
         return print_statement();
     }
@@ -117,6 +121,57 @@ std::unique_ptr<Stmt> Parser::while_statement() {
     auto body = statement();
 
     return std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+}
+
+std::unique_ptr<Stmt> Parser::for_statement() {
+    consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+    std::unique_ptr<Stmt> initializer;
+    if (match(SEMICOLON)) {
+        initializer = nullptr;
+    } else if (match(VAR)) {
+        initializer = var_declaration();
+    } else {
+        initializer = expression_statement();
+    }
+
+    std::unique_ptr<Expr> condition;
+    if (check(SEMICOLON)) {
+        condition = nullptr;
+    } else {
+        condition = expression();
+    }
+    consume(SEMICOLON, "Expect ';' after loop condition.");
+
+    std::unique_ptr<Expr> increment;
+    if (!check(RIGHT_PAREN)) {
+        increment = expression();
+    }
+    consume(RIGHT_PAREN, "Expect ')' after loop increment.");
+
+    auto body = statement();
+
+    if (increment) {
+        // Extend body
+        // Initializer of vectors do not work, so we use two push backs.
+        std::vector<std::unique_ptr<Stmt>> extended_body;
+        extended_body.push_back(std::move(body));
+        extended_body.push_back(
+            std::make_unique<Stmt::Expression>(std::move(increment)));
+        body = std::make_unique<Stmt::Block>(std::move(extended_body));
+    }
+    if (not condition) {
+        condition = std::make_unique<Expr::Literal>(Token(true));
+    }
+    body = std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+    if (initializer) {
+        std::vector<std::unique_ptr<Stmt>> encapsulating_block_list;
+        encapsulating_block_list.push_back(std::move(initializer));
+        encapsulating_block_list.push_back(std::move(body));
+        body =
+            std::make_unique<Stmt::Block>(std::move(encapsulating_block_list));
+    }
+    return body;
 }
 
 std::unique_ptr<Stmt> Parser::print_statement() {

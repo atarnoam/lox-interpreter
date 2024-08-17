@@ -61,6 +61,10 @@ struct Token {
     Token(TokenType type, std::string lexeme, int line, double number);
     Token(TokenType type, std::string lexeme, int line, std::string literal);
 
+    // Create ghost tokens
+    Token(bool val);
+    Token(std::nullptr_t nil);
+
     std::string literal_to_string() const;
 
     TokenType type;
