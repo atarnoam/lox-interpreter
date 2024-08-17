@@ -40,6 +40,7 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     virtual void visit_block_stmt(const Stmt::Block &block) override;
     virtual void
     visit_expression_stmt(const Stmt::Expression &expression) override;
+    virtual void visit_if_stmt(const Stmt::If &stmt);
     virtual void visit_print_stmt(const Stmt::Print &print) override;
     virtual void visit_var_stmt(const Stmt::Var &var) override;
 

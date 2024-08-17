@@ -69,6 +69,9 @@ std::unique_ptr<Stmt> Parser::var_declaration() {
 }
 
 std::unique_ptr<Stmt> Parser::statement() {
+    if (match(IF)) {
+        return if_statement();
+    }
     if (match(PRINT)) {
         return print_statement();
     }
@@ -87,6 +90,21 @@ std::vector<std::unique_ptr<Stmt>> Parser::block_stmt_list() {
 
     consume(RIGHT_BRACE, "Expect '}' after block.");
     return statements;
+}
+
+std::unique_ptr<Stmt> Parser::if_statement() {
+    consume(LEFT_PAREN, "Expect '(' after 'if'.");
+    auto condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+    auto then_branch = statement();
+    std::unique_ptr<Stmt> else_branch;
+    if (match(ELSE)) {
+        else_branch = statement();
+    }
+
+    return std::make_unique<Stmt::If>(
+        std::move(condition), std::move(then_branch), std::move(else_branch));
 }
 
 std::unique_ptr<Stmt> Parser::print_statement() {

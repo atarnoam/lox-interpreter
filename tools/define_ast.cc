@@ -190,7 +190,7 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
     os_h << fmt::format("struct {} {{", ast_data.visitor_name) << std::endl;
     for (const auto &[subclass_name, _] : ast_data.subclasses) {
         os_h << fmt::format(
-                    "    virtual void visit_{0}_{2}(const {3}::{1} &{0}) = 0;",
+                    "    virtual void visit_{0}_{2}(const {3}::{1} &) = 0;",
                     to_lower(subclass_name), subclass_name,
                     to_lower(ast_data.base_name), ast_data.base_name)
              << std::endl;
@@ -270,6 +270,8 @@ int main(int argc, char **argv) {
         {
             "Block      : std::vector<std::unique_ptr<Stmt>> statements",
             "Expression : std::unique_ptr<Expr> expression",
+            "If : std::unique_ptr<Expr> condition, Stmt then_branch,"
+            "Stmt else_branch",
             "Print      : std::unique_ptr<Expr> expression",
             "Var        : Token name, std::unique_ptr<Expr> initializer",
         },

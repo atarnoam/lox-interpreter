@@ -18,6 +18,7 @@ struct Stmt {
 
     struct Block;
     struct Expression;
+    struct If;
     struct Print;
     struct Var;
 };
@@ -34,6 +35,15 @@ struct Stmt::Expression : Stmt {
     std::unique_ptr<Expr> expression;
 };
 
+struct Stmt::If : Stmt {
+    If(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch,
+       std::unique_ptr<Stmt> else_branch);
+    virtual void accept(StmtVisitor &visitor) const override;
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> then_branch;
+    std::unique_ptr<Stmt> else_branch;
+};
+
 struct Stmt::Print : Stmt {
     Print(std::unique_ptr<Expr> expression);
     virtual void accept(StmtVisitor &visitor) const override;
@@ -48,8 +58,9 @@ struct Stmt::Var : Stmt {
 };
 
 struct StmtVisitor {
-    virtual void visit_block_stmt(const Stmt::Block &block) = 0;
-    virtual void visit_expression_stmt(const Stmt::Expression &expression) = 0;
-    virtual void visit_print_stmt(const Stmt::Print &print) = 0;
-    virtual void visit_var_stmt(const Stmt::Var &var) = 0;
+    virtual void visit_block_stmt(const Stmt::Block &) = 0;
+    virtual void visit_expression_stmt(const Stmt::Expression &) = 0;
+    virtual void visit_if_stmt(const Stmt::If &) = 0;
+    virtual void visit_print_stmt(const Stmt::Print &) = 0;
+    virtual void visit_var_stmt(const Stmt::Var &) = 0;
 };

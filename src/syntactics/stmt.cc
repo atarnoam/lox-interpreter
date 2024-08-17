@@ -14,6 +14,15 @@ void Stmt::Expression::accept(StmtVisitor &visitor) const {
     visitor.visit_expression_stmt(*this);
 }
 
+Stmt::If::If(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch,
+             std::unique_ptr<Stmt> else_branch)
+    : condition(std::move(condition)), then_branch(std::move(then_branch)),
+      else_branch(std::move(else_branch)) {}
+
+void Stmt::If::accept(StmtVisitor &visitor) const {
+    visitor.visit_if_stmt(*this);
+}
+
 Stmt::Print::Print(std::unique_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

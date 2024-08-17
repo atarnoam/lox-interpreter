@@ -14,7 +14,11 @@ LoxObject Interpreter::evaluate(const Expr *expr) {
     return expr_result;
 }
 
-void Interpreter::execute(const Stmt *stmt) { stmt->accept(*this); }
+void Interpreter::execute(const Stmt *stmt) {
+    if (stmt) {
+        stmt->accept(*this);
+    }
+}
 
 void Interpreter::execute_block(
     const std::vector<std::unique_ptr<Stmt>> &stmts,
@@ -186,6 +190,15 @@ void Interpreter::visit_block_stmt(const Stmt::Block &block) {
 
 void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
     evaluate(expression.expression.get());
+}
+
+void Interpreter::visit_if_stmt(const Stmt::If &stmt) {
+    evaluate(stmt.condition.get());
+    if (static_cast<bool>(expr_result)) {
+        execute(stmt.then_branch.get());
+    } else {
+        execute(stmt.else_branch.get());
+    }
 }
 
 void Interpreter::visit_print_stmt(const Stmt::Print &print) {
