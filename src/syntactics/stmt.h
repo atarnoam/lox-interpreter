@@ -2,15 +2,7 @@
 #include "src/syntactics/expr.h"
 #include <memory>
 
-struct Stmt;
-
-struct Expression;
-struct Print;
-
-struct StmtVisitor {
-    virtual void visit_expression(const Expression &expression) = 0;
-    virtual void visit_print(const Print &print) = 0;
-};
+struct StmtVisitor;
 
 struct Stmt {
     virtual void accept(StmtVisitor &visitor) const = 0;
@@ -22,16 +14,24 @@ struct Stmt {
     Stmt &operator=(Stmt &&) = default;
 
     virtual ~Stmt() = default;
+
+    struct Expression;
+    struct Print;
 };
 
-struct Expression : Stmt {
+struct Stmt::Expression : Stmt {
     Expression(std::unique_ptr<Expr> expression);
-    virtual void accept(StmtVisitor &visitor) const;
+    virtual void accept(StmtVisitor &visitor) const override;
     std::unique_ptr<Expr> expression;
 };
 
-struct Print : Stmt {
+struct Stmt::Print : Stmt {
     Print(std::unique_ptr<Expr> expression);
-    virtual void accept(StmtVisitor &visitor) const;
+    virtual void accept(StmtVisitor &visitor) const override;
     std::unique_ptr<Expr> expression;
+};
+
+struct StmtVisitor {
+    virtual void visit_expression_stmt(const Stmt::Expression &expression) = 0;
+    virtual void visit_print_stmt(const Stmt::Print &print) = 0;
 };

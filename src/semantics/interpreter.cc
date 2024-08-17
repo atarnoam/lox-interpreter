@@ -25,7 +25,7 @@ bool Interpreter::had_runtime_error() const { return m_had_runtime_error; }
 Interpreter::RuntimeError::RuntimeError(Token token, const std::string &what)
     : std::runtime_error(what), token(std::move(token)) {}
 
-void Interpreter::visit_binary(const Binary &binary) {
+void Interpreter::visit_binary_expr(const Expr::Binary &binary) {
     binary.left->accept(*this);
     LoxObject left = result;
 
@@ -87,11 +87,11 @@ void Interpreter::visit_binary(const Binary &binary) {
     }
 }
 
-void Interpreter::visit_grouping(const Grouping &grouping) {
+void Interpreter::visit_grouping_expr(const Expr::Grouping &grouping) {
     grouping.expression->accept(*this);
 }
 
-void Interpreter::visit_literal(const Literal &literal) {
+void Interpreter::visit_literal_expr(const Expr::Literal &literal) {
     switch (literal.value.type) {
     case NIL:
         result = LoxNull{};
@@ -110,7 +110,7 @@ void Interpreter::visit_literal(const Literal &literal) {
     }
 }
 
-void Interpreter::visit_unary(const Unary &unary) {
+void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     unary.right->accept(*this);
     switch (unary.op.type) {
     case BANG:

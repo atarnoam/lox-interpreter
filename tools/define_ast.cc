@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cctype>
+#include <cstdlib>
 #include <filesystem>
 #include <fmt/format.h>
 #include <fstream>
@@ -39,8 +40,50 @@ inline void trim(std::string &s) {
     ltrim(s);
 }
 
-void define_base_class(std::ostream &os, const std::string &base_name,
-                       const std::string &visitor_name) {
+using SubclassName = std::string;
+using FieldType = std::string;
+using FieldName = std::string;
+using Field = std::pair<FieldType, FieldName>;
+using SubclassData = std::pair<SubclassName, std::vector<Field>>;
+
+SubclassData parse_string(const std::string &subclass_str) {
+    std::stringstream subclass_stream(subclass_str);
+    SubclassName subclass_name;
+    std::getline(subclass_stream, subclass_name, ':');
+    trim(subclass_name);
+    std::string field_str;
+    std::vector<Field> fields;
+    while (std::getline(subclass_stream, field_str, ',')) {
+        trim(field_str);
+        size_t delim_idx = field_str.find(' ');
+        FieldType field_type = field_str.substr(0, delim_idx);
+        FieldName field_name = field_str.substr(delim_idx + 1);
+        fields.emplace_back(field_type, field_name);
+    };
+    return {subclass_name, fields};
+}
+
+std::vector<SubclassData>
+parse_subclasses(const std::vector<std::string> &subclass_strs) {
+    std::vector<SubclassData> subclasses;
+    std::transform(subclass_strs.begin(), subclass_strs.end(),
+                   std::back_inserter(subclasses), parse_string);
+    return subclasses;
+}
+
+struct AstData {
+    AstData(const std::string &base_name,
+            std::vector<std::string> subclass_strs)
+        : base_name(base_name),
+          subclasses(parse_subclasses(std::move(subclass_strs))),
+          visitor_name(fmt::format("{}Visitor", base_name)) {}
+
+    std::string base_name;
+    std::vector<SubclassData> subclasses;
+    std::string visitor_name;
+};
+
+void define_base_class(std::ostream &os, const AstData &ast_data) {
     os << fmt::format(
         R"###(struct {0} {{ 
     virtual void accept({1} &visitor) const = 0;
@@ -52,28 +95,30 @@ void define_base_class(std::ostream &os, const std::string &base_name,
     {0} &operator=({0} &&) = default;
     
     virtual ~{0}() = default;
-}};)###",
-        base_name, visitor_name);
-    // os << fmt::format(BASE_CLASS_FMT, base_name);
-    os << std::endl << std::endl;
-}
 
-using SubclassName = std::string;
-using FieldType = std::string;
-using FieldName = std::string;
-using Field = std::pair<FieldType, FieldName>;
+)###",
+        ast_data.base_name, ast_data.visitor_name);
+    for (const auto &[subclass_name, _] : ast_data.subclasses) {
+        os << fmt::format("    struct {};", subclass_name) << std::endl;
+    }
+    os << "};" << std::endl << std::endl;
+}
 
 void define_subclass(std::ostream &os_h, std::ostream &os_cc,
                      const std::string &base_class,
                      const std::string &visitor_name,
-                     const SubclassName &subclass_name,
-                     std::vector<Field> fields) {
+                     const SubclassData subclass_data) {
+    auto [subclass_name, fields] = subclass_data;
+
+    const std::string &scoped_name =
+        fmt::format("{}::{}", base_class, subclass_name);
+
     for (auto &[field_type, field_name] : fields) {
         if (field_type == base_class) {
-            field_type = std::string("std::unique_ptr<") + field_type + ">";
+            field_type = fmt::format("std::unique_ptr<{}>", field_type);
         }
     }
-    os_h << fmt::format("struct {} : {} {{", subclass_name, base_class)
+    os_h << fmt::format("struct {} : {} {{", scoped_name, base_class)
          << std::endl;
 
     // Declare constructor
@@ -90,7 +135,7 @@ void define_subclass(std::ostream &os_h, std::ostream &os_cc,
     os_h << ");" << std::endl;
 
     // Define constructor
-    os_cc << fmt::format("{0}::{0}(", subclass_name);
+    os_cc << fmt::format("{}::{}(", scoped_name, subclass_name);
     first_iter = true;
     for (const auto &[field_type, field_name] : fields) {
         if (!first_iter) {
@@ -112,15 +157,16 @@ void define_subclass(std::ostream &os_h, std::ostream &os_cc,
     os_cc << "{}" << std::endl << std::endl;
 
     // Declare visitor accept
-    os_h << fmt::format("    virtual void accept({}& visitor) const;",
+    os_h << fmt::format("    virtual void accept({}& visitor) const override;",
                         visitor_name)
          << std::endl;
 
     // Define visitor accept
-    os_cc << fmt::format(R"###(void {0}::accept({2}& visitor) const {{
-    visitor.visit_{1}(*this);
+    os_cc << fmt::format(R"###(void {}::accept({}& visitor) const {{
+    visitor.visit_{}_{}(*this);
 }})###",
-                         subclass_name, to_lower(subclass_name), visitor_name)
+                         scoped_name, visitor_name, to_lower(subclass_name),
+                         to_lower(base_class))
           << std::endl
           << std::endl;
 
@@ -131,55 +177,35 @@ void define_subclass(std::ostream &os_h, std::ostream &os_cc,
     os_h << "};" << std::endl << std::endl;
 }
 
-std::pair<SubclassName, std::vector<Field>>
-parse_string(const std::string &subclass_str) {
-    std::stringstream subclass_stream(subclass_str);
-    SubclassName subclass_name;
-    std::getline(subclass_stream, subclass_name, ':');
-    trim(subclass_name);
-    std::string field_str;
-    std::vector<Field> fields;
-    while (std::getline(subclass_stream, field_str, ',')) {
-        trim(field_str);
-        size_t delim_idx = field_str.find(' ');
-        FieldType field_type = field_str.substr(0, delim_idx);
-        FieldName field_name = field_str.substr(delim_idx + 1);
-        fields.emplace_back(field_type, field_name);
-    };
-    return {subclass_name, fields};
-}
-
-std::vector<std::pair<SubclassName, std::vector<Field>>>
-parse_subclasses(const std::vector<std::string> &subclass_strs) {
-    std::vector<std::pair<SubclassName, std::vector<Field>>> subclasses;
-    std::transform(subclass_strs.begin(), subclass_strs.end(),
-                   std::back_inserter(subclasses), parse_string);
-    return subclasses;
+void define_subclasses(std::ostream &os_h, std::ostream &os_cc,
+                       const AstData &ast_data) {
+    for (const SubclassData &subclass_data : ast_data.subclasses) {
+        define_subclass(os_h, os_cc, ast_data.base_name, ast_data.visitor_name,
+                        subclass_data);
+    }
 }
 
 void define_visitor(std::ostream &os_h, std::ostream &os_cc,
-                    const std::string &visitor_name,
-                    const std::vector<SubclassName> &subclasses) {
-    os_h << fmt::format("struct {} {{", visitor_name) << std::endl;
-    for (const auto &subclass_name : subclasses) {
-        os_h << fmt::format("    virtual void visit_{0}(const {1} &{0}) = 0;",
-                            to_lower(subclass_name), subclass_name)
+                    const AstData &ast_data) {
+    os_h << fmt::format("struct {} {{", ast_data.visitor_name) << std::endl;
+    for (const auto &[subclass_name, _] : ast_data.subclasses) {
+        os_h << fmt::format(
+                    "    virtual void visit_{0}_{2}(const {3}::{1} &{0}) = 0;",
+                    to_lower(subclass_name), subclass_name,
+                    to_lower(ast_data.base_name), ast_data.base_name)
              << std::endl;
-        ;
     }
     os_h << "};" << std::endl << std::endl;
 }
 
-void define_ast(fs::path output_dir, const std::string &base_name,
+void define_ast(const fs::path &file_h, const fs::path &file_cc,
+                const std::string &base_name,
                 const std::vector<std::string> &subclass_strs,
                 const std::vector<std::string> &includes = {}) {
-    auto subclasses = parse_subclasses(subclass_strs);
-    output_dir = output_dir / "syntactics";
-    std::cout << output_dir << std::endl;
-    std::ofstream ofile_h(output_dir / (to_lower(base_name) + ".h"));
-    std::ofstream ofile_cc(output_dir / (to_lower(base_name) + ".cc"));
+    std::ofstream ofile_h(file_h);
+    std::ofstream ofile_cc(file_cc);
 
-    std::string visitor_name = fmt::format("{}Visitor", base_name);
+    AstData ast_data(base_name, subclass_strs);
 
     // Headers of .h
     ofile_h << "#pragma once" << std::endl;
@@ -190,32 +216,45 @@ void define_ast(fs::path output_dir, const std::string &base_name,
 
     // Headers of .cc
     ofile_cc << fmt::format("#include \"src/syntactics/{}.h\"",
-                            to_lower(base_name))
+                            to_lower(ast_data.base_name))
              << std::endl
              << std::endl;
 
-    // Declare base class
-    ofile_h << fmt::format("struct {};", base_name) << std::endl << std::endl;
+    // Declase visitor class
+    ofile_h << fmt::format("struct {};", ast_data.visitor_name) << std::endl
+            << std::endl;
 
-    std::vector<SubclassName> subclass_names;
-    std::transform(subclasses.begin(), subclasses.end(),
-                   std::back_inserter(subclass_names),
-                   [](const auto &x) { return x.first; });
+    // // Declare base class
+    // ofile_h << fmt::format("struct {};", base_name) << std::endl <<
+    // std::endl;
 
-    // Declare subclasses
-    for (const auto &subclass_name : subclass_names) {
-        ofile_h << fmt::format("struct {};", subclass_name) << std::endl;
-    }
-    ofile_h << std::endl;
+    // // Declare subclasses
+    // for (const auto &[subclass_name, _] : ast_data.subclasses) {
+    //     ofile_h << fmt::format("struct {}::{};", base_name, subclass_name)
+    //             << std::endl;
+    // }
+    // ofile_h << std::endl;
 
-    define_visitor(ofile_h, ofile_cc, visitor_name, subclass_names);
+    define_base_class(ofile_h, ast_data);
 
-    define_base_class(ofile_h, base_name, visitor_name);
+    define_subclasses(ofile_h, ofile_cc, ast_data);
 
-    for (const auto &[subclass_name, fields] : subclasses) {
-        define_subclass(ofile_h, ofile_cc, base_name, visitor_name,
-                        subclass_name, fields);
-    }
+    define_visitor(ofile_h, ofile_cc, ast_data);
+}
+
+void define_and_format_ast(fs::path output_dir, const std::string &base_name,
+                           const std::vector<std::string> &subclass_strs,
+                           const std::vector<std::string> &includes = {}) {
+    output_dir = output_dir / "syntactics";
+    std::cout << output_dir << std::endl;
+    fs::path file_h = output_dir / (to_lower(base_name) + ".h");
+    fs::path file_cc = output_dir / (to_lower(base_name) + ".cc");
+
+    define_ast(file_h, file_cc, base_name, subclass_strs, includes);
+
+    // Format files
+    std::system(fmt::format("clang-format -i {}", file_h.string()).c_str());
+    std::system(fmt::format("clang-format -i {}", file_cc.string()).c_str());
 }
 
 int main(int argc, char **argv) {
@@ -224,20 +263,20 @@ int main(int argc, char **argv) {
         return 1;
     }
     std::string output_dir = argv[1];
-    define_ast(output_dir, "Expr",
-               {
-                   "Binary : Expr left, Token op, Expr right",
-                   "Grouping : Expr expression",
-                   "Literal  : Token value",
-                   "Unary    : Token op, Expr right",
+    define_and_format_ast(output_dir, "Expr",
+                          {
+                              "Binary : Expr left, Token op, Expr right",
+                              "Grouping : Expr expression",
+                              "Literal  : Token value",
+                              "Unary    : Token op, Expr right",
 
-               },
-               {"syntactics/token.h"});
+                          },
+                          {"syntactics/token.h"});
 
-    define_ast(output_dir, "Stmt",
-               {
-                   "Expression : std::unique_ptr<Expr> expression",
-                   "Print : std::unique_ptr<Expr> expression",
-               },
-               {"syntactics/expr.h"});
+    define_and_format_ast(output_dir, "Stmt",
+                          {
+                              "Expression : std::unique_ptr<Expr> expression",
+                              "Print : std::unique_ptr<Expr> expression",
+                          },
+                          {"syntactics/expr.h"});
 }

@@ -2,19 +2,19 @@
 
 AstPrinter::AstPrinter() {}
 
-void AstPrinter::visit_binary(const Binary &binary) {
+void AstPrinter::visit_binary_expr(const Expr::Binary &binary) {
     parenthesize(binary.op.lexeme, binary.left.get(), binary.right.get());
 }
 
-void AstPrinter::visit_grouping(const Grouping &grouping) {
+void AstPrinter::visit_grouping_expr(const Expr::Grouping &grouping) {
     parenthesize("group", grouping.expression.get());
 }
 
-void AstPrinter::visit_literal(const Literal &literal) {
+void AstPrinter::visit_literal_expr(const Expr::Literal &literal) {
     result << literal.value.literal_to_string();
 }
 
-void AstPrinter::visit_unary(const Unary &unary) {
+void AstPrinter::visit_unary_expr(const Expr::Unary &unary) {
     parenthesize(unary.op.lexeme, unary.right.get());
 }
 

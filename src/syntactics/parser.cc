@@ -53,13 +53,13 @@ std::unique_ptr<Stmt> Parser::statement() {
 std::unique_ptr<Stmt> Parser::print_statement() {
     auto expr = expression();
     consume(SEMICOLON, "Expect ; after value.");
-    return make_unique<Print>(std::move(expr));
+    return make_unique<Stmt::Print>(std::move(expr));
 }
 
 std::unique_ptr<Stmt> Parser::expression_statement() {
     auto expr = expression();
     consume(SEMICOLON, "Expect ; after value.");
-    return make_unique<Expression>(std::move(expr));
+    return make_unique<Stmt::Expression>(std::move(expr));
 }
 
 std::unique_ptr<Expr> Parser::expression() { return equality(); }
@@ -70,7 +70,8 @@ std::unique_ptr<Expr> Parser::equality() {
         Token op = previous();
         auto right = comparison();
         auto left = std::move(expr);
-        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+        expr = std::make_unique<Expr::Binary>(std::move(left), op,
+                                              std::move(right));
     }
     return expr;
 }
@@ -81,7 +82,8 @@ std::unique_ptr<Expr> Parser::comparison() {
         Token op = previous();
         auto right = term();
         auto left = std::move(expr);
-        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+        expr = std::make_unique<Expr::Binary>(std::move(left), op,
+                                              std::move(right));
     }
     return expr;
 }
@@ -92,7 +94,8 @@ std::unique_ptr<Expr> Parser::term() {
         Token op = previous();
         auto right = factor();
         auto left = std::move(expr);
-        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+        expr = std::make_unique<Expr::Binary>(std::move(left), op,
+                                              std::move(right));
     }
     return expr;
 }
@@ -103,7 +106,8 @@ std::unique_ptr<Expr> Parser::factor() {
         Token op = previous();
         auto right = unary();
         auto left = std::move(expr);
-        expr = std::make_unique<Binary>(std::move(left), op, std::move(right));
+        expr = std::make_unique<Expr::Binary>(std::move(left), op,
+                                              std::move(right));
     }
     return expr;
 }
@@ -112,7 +116,7 @@ std::unique_ptr<Expr> Parser::unary() {
     if (match(MINUS, BANG)) {
         Token op = previous();
         auto right = unary();
-        return std::make_unique<Unary>(op, std::move(right));
+        return std::make_unique<Expr::Unary>(op, std::move(right));
     }
     return primary();
 }
@@ -126,12 +130,12 @@ std::unique_ptr<Expr> Parser::primary() {
     case TRUE:
     case FALSE:
     case NIL:
-        expr = std::make_unique<Literal>(token);
+        expr = std::make_unique<Expr::Literal>(token);
         break;
     case LEFT_PAREN: {
         auto inner_expr = expression();
         consume(RIGHT_PAREN, "Expect ')' after expression");
-        expr = std::make_unique<Grouping>(std::move(inner_expr));
+        expr = std::make_unique<Expr::Grouping>(std::move(inner_expr));
     } break;
     default:
         throw parse_error(peek(), "Expect expression");
