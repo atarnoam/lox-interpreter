@@ -16,6 +16,8 @@ struct Interpreter : ExprVisitor, StmtVisitor {
 
     LoxObject evaluate(const Expr *expr);
     void execute(const Stmt *stmt);
+    void execute_block(const std::vector<std::unique_ptr<Stmt>> &stmts,
+                       const std::shared_ptr<Environment> &environment);
     void interpret(const std::vector<std::unique_ptr<Stmt>> &stmts);
 
     bool had_runtime_error() const;
@@ -29,6 +31,7 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     virtual void visit_unary_expr(const Expr::Unary &unary) override;
     virtual void visit_variable_expr(const Expr::Variable &variable) override;
 
+    virtual void visit_block_stmt(const Stmt::Block &block) override;
     virtual void
     visit_expression_stmt(const Stmt::Expression &expression) override;
     virtual void visit_print_stmt(const Stmt::Print &print) override;
@@ -38,7 +41,8 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     static void check_numeric_op(const Token &op, const LoxObject &left,
                                  const LoxObject &right);
 
-    Environment environment;
+    std::shared_ptr<Environment> global_environment;
+    std::shared_ptr<Environment> curr_environment;
     LoxObject expr_result;
     bool m_had_runtime_error;
 };

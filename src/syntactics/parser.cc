@@ -72,7 +72,21 @@ std::unique_ptr<Stmt> Parser::statement() {
     if (match(PRINT)) {
         return print_statement();
     }
+    if (match(LEFT_BRACE)) {
+        return make_unique<Stmt::Block>(block_stmt_list());
+    }
     return expression_statement();
+}
+
+std::vector<std::unique_ptr<Stmt>> Parser::block_stmt_list() {
+    std::vector<std::unique_ptr<Stmt>> statements;
+
+    while (!check(RIGHT_BRACE) && !is_at_end()) {
+        statements.push_back(std::move(declaration()));
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
 }
 
 std::unique_ptr<Stmt> Parser::print_statement() {

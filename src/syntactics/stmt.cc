@@ -1,5 +1,12 @@
 #include "src/syntactics/stmt.h"
 
+Stmt::Block::Block(std::vector<std::unique_ptr<Stmt>> statements)
+    : statements(std::move(statements)) {}
+
+void Stmt::Block::accept(StmtVisitor &visitor) const {
+    visitor.visit_block_stmt(*this);
+}
+
 Stmt::Expression::Expression(std::unique_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

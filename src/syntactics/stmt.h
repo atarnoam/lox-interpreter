@@ -1,6 +1,7 @@
 #pragma once
 #include "src/syntactics/expr.h"
 #include <memory>
+#include <vector>
 
 struct StmtVisitor;
 
@@ -15,9 +16,16 @@ struct Stmt {
 
     virtual ~Stmt() = default;
 
+    struct Block;
     struct Expression;
     struct Print;
     struct Var;
+};
+
+struct Stmt::Block : Stmt {
+    Block(std::vector<std::unique_ptr<Stmt>> statements);
+    virtual void accept(StmtVisitor &visitor) const override;
+    std::vector<std::unique_ptr<Stmt>> statements;
 };
 
 struct Stmt::Expression : Stmt {
@@ -40,6 +48,7 @@ struct Stmt::Var : Stmt {
 };
 
 struct StmtVisitor {
+    virtual void visit_block_stmt(const Stmt::Block &block) = 0;
     virtual void visit_expression_stmt(const Stmt::Expression &expression) = 0;
     virtual void visit_print_stmt(const Stmt::Print &print) = 0;
     virtual void visit_var_stmt(const Stmt::Var &var) = 0;

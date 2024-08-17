@@ -5,7 +5,9 @@
 #include "src/tp_utils.h"
 
 Interpreter::Interpreter()
-    : environment(), expr_result(LoxNull{}), m_had_runtime_error(false) {}
+    : global_environment(std::make_shared<Environment>()),
+      curr_environment(global_environment), expr_result(LoxNull{}),
+      m_had_runtime_error(false) {}
 
 LoxObject Interpreter::evaluate(const Expr *expr) {
     expr->accept(*this);
@@ -13,6 +15,17 @@ LoxObject Interpreter::evaluate(const Expr *expr) {
 }
 
 void Interpreter::execute(const Stmt *stmt) { stmt->accept(*this); }
+
+void Interpreter::execute_block(
+    const std::vector<std::unique_ptr<Stmt>> &stmts,
+    const std::shared_ptr<Environment> &environment) {
+    auto previous_environment = curr_environment;
+    curr_environment = environment;
+    for (const auto &stmt : stmts) {
+        execute(stmt.get());
+    }
+    curr_environment = previous_environment;
+}
 
 void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
     try {
@@ -22,6 +35,7 @@ void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
     } catch (const RuntimeError &err) {
         error(err.token.line, err.what());
         m_had_runtime_error = true;
+        curr_environment = global_environment;
     }
 }
 
@@ -30,7 +44,7 @@ void Interpreter::reset_runtime_error() { m_had_runtime_error = false; }
 
 void Interpreter::visit_assign_expr(const Expr::Assign &assign) {
     LoxObject value = evaluate(assign.value.get());
-    environment.assign(assign.name, value);
+    curr_environment->assign(assign.name, value);
     expr_result = value;
 }
 
@@ -135,7 +149,7 @@ void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
 }
 
 void Interpreter::visit_variable_expr(const Expr::Variable &variable) {
-    expr_result = environment.get(variable.name);
+    expr_result = curr_environment->get(variable.name);
 }
 
 void Interpreter::check_numeric_op(const Token &op, const LoxObject &operand) {
@@ -150,6 +164,11 @@ void Interpreter::check_numeric_op(const Token &op, const LoxObject &left,
         return;
     }
     throw RuntimeError(op, "Operands must be numbers.");
+}
+
+void Interpreter::visit_block_stmt(const Stmt::Block &block) {
+    execute_block(block.statements,
+                  std::make_shared<Environment>(curr_environment));
 }
 
 void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
@@ -167,5 +186,6 @@ void Interpreter::visit_var_stmt(const Stmt::Var &var) {
     if (var.initializer) {
         value = evaluate(var.initializer.get());
     }
-    environment.define(var.name.lexeme, value);
+
+    curr_environment->define(var.name.lexeme, value);
 }

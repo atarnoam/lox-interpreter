@@ -210,7 +210,7 @@ void define_ast(const fs::path &file_h, const fs::path &file_cc,
     // Headers of .h
     ofile_h << "#pragma once" << std::endl;
     for (const auto &include : includes) {
-        ofile_h << fmt::format("#include \"src/{}\"", include) << std::endl;
+        ofile_h << fmt::format("#include {}", include) << std::endl;
     }
     ofile_h << "#include <memory>" << std::endl << std::endl;
 
@@ -261,14 +261,20 @@ int main(int argc, char **argv) {
                               "Unary    : Token op, Expr right",
                               "Variable : Token name",
                           },
-                          {"syntactics/token.h"});
+                          {
+                              "\"src/syntactics/token.h\"",
+                          });
 
     define_and_format_ast(
         output_dir, "Stmt",
         {
+            "Block      : std::vector<std::unique_ptr<Stmt>> statements",
             "Expression : std::unique_ptr<Expr> expression",
-            "Print : std::unique_ptr<Expr> expression",
-            "Var : Token name, std::unique_ptr<Expr> initializer",
+            "Print      : std::unique_ptr<Expr> expression",
+            "Var        : Token name, std::unique_ptr<Expr> initializer",
         },
-        {"syntactics/expr.h"});
+        {
+            "\"src/syntactics/expr.h\"",
+            "<vector>",
+        });
 }

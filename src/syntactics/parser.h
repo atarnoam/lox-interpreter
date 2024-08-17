@@ -40,6 +40,7 @@ struct Parser {
     std::unique_ptr<Stmt> declaration();
     std::unique_ptr<Stmt> var_declaration();
     std::unique_ptr<Stmt> statement();
+    std::vector<std::unique_ptr<Stmt>> block_stmt_list();
     std::unique_ptr<Stmt> print_statement();
     std::unique_ptr<Stmt> expression_statement();
 
