@@ -27,10 +27,23 @@ void Interpreter::execute_block(
     curr_environment = previous_environment;
 }
 
-void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
+void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts,
+                            InterpreterMode mode) {
+    if (stmts.empty()) {
+        return;
+    }
+
     try {
-        for (const auto &stmt : stmts) {
-            execute(stmt.get());
+        std::for_each(stmts.begin(), --stmts.end(),
+                      [this](const auto &stmt) { execute(stmt.get()); });
+
+        const Stmt *last_stmt = (--stmts.end())->get();
+        execute(last_stmt);
+
+        const Stmt::Expression *expression =
+            dynamic_cast<const Stmt::Expression *>(last_stmt);
+        if (mode == InterpreterMode::INTERACTIVE && expression != nullptr) {
+            std::cout << expr_result << std::endl;
         }
     } catch (const RuntimeError &err) {
         error(err.token.line, err.what());

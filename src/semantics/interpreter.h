@@ -11,6 +11,11 @@
 #include <variant>
 #include <vector>
 
+enum class InterpreterMode {
+    FILE,
+    INTERACTIVE,
+};
+
 struct Interpreter : ExprVisitor, StmtVisitor {
     Interpreter();
 
@@ -18,7 +23,8 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     void execute(const Stmt *stmt);
     void execute_block(const std::vector<std::unique_ptr<Stmt>> &stmts,
                        const std::shared_ptr<Environment> &environment);
-    void interpret(const std::vector<std::unique_ptr<Stmt>> &stmts);
+    void interpret(const std::vector<std::unique_ptr<Stmt>> &stmts,
+                   InterpreterMode mode = InterpreterMode::FILE);
 
     bool had_runtime_error() const;
     void reset_runtime_error();

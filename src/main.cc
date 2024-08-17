@@ -8,24 +8,35 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 
-int interpret_stream(Interpreter &interpreter, std::istream &&is) {
+std::optional<std::vector<std::unique_ptr<Stmt>>>
+parse_stream(std::istream &&is) {
     Scanner scanner(std::move(is));
 
     auto tokens = scanner.scan_tokens();
     if (scanner.had_error) {
-        return 64;
+        return std::nullopt;
     }
 
     Parser parser(std::move(tokens));
 
     auto stmts = parser.parse();
     if (parser.had_error()) {
+        return std::nullopt;
+    }
+    return stmts;
+}
+
+int interpret_stream(Interpreter &interpreter, std::istream &&is,
+                     InterpreterMode mode) {
+    auto stmts = parse_stream(std::move(is));
+    if (!stmts.has_value()) {
         return 65;
     }
 
-    interpreter.interpret(stmts);
+    interpreter.interpret(stmts.value(), mode);
     if (interpreter.had_runtime_error()) {
         return 70;
     }
@@ -39,7 +50,8 @@ int run_interpreter() {
     std::string s;
     std::cout << "> ";
     while (std::getline(std::cin, s)) {
-        interpret_stream(interpreter, std::stringstream(s));
+        interpret_stream(interpreter, std::stringstream(s),
+                         InterpreterMode::INTERACTIVE);
         std::cout << "> ";
         interpreter.reset_runtime_error();
     }
@@ -50,7 +62,7 @@ int run_interpreter() {
 int run_file(char *filename) {
     Interpreter interpreter;
     std::ifstream ifs(filename);
-    return interpret_stream(interpreter, std::move(ifs));
+    return interpret_stream(interpreter, std::move(ifs), InterpreterMode::FILE);
 }
 
 int main(int argc, char **argv) {
