@@ -20,12 +20,12 @@ int interpret_stream(Interpreter &interpreter, std::istream &&is) {
 
     Parser parser(std::move(tokens));
 
-    std::unique_ptr<Expr> expr = parser.parse();
+    auto stmts = parser.parse();
     if (parser.had_error()) {
         return 65;
     }
 
-    interpreter.interpret(expr.get());
+    interpreter.interpret(stmts);
     if (interpreter.had_runtime_error()) {
         return 70;
     }
@@ -41,6 +41,7 @@ int run_interpreter() {
     while (std::getline(std::cin, s)) {
         interpret_stream(interpreter, std::stringstream(s));
         std::cout << "> ";
+        interpreter.reset_runtime_error();
     }
     std::cout << std::endl;
     return 0;
@@ -58,7 +59,7 @@ int main(int argc, char **argv) {
     } else if (argc == 2) {
         return run_file(argv[1]);
     } else {
-        std::cout << "Usage: jlox [script]" << std::endl;
+        std::cout << "Usage: cpplox [script]" << std::endl;
         return 1;
     }
 }

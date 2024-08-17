@@ -10,10 +10,13 @@ LoxObject Interpreter::evaluate(const Expr *expr) {
     return result;
 }
 
-void Interpreter::interpret(const Expr *expr) {
+void Interpreter::execute(const Stmt *stmt) { stmt->accept(*this); }
+
+void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
     try {
-        LoxObject result = evaluate(expr);
-        std::cout << std::boolalpha << result << std::endl;
+        for (const auto &stmt : stmts) {
+            execute(stmt.get());
+        }
     } catch (const Interpreter::RuntimeError &err) {
         error(err.token.line, err.what());
         m_had_runtime_error = true;
@@ -21,6 +24,7 @@ void Interpreter::interpret(const Expr *expr) {
 }
 
 bool Interpreter::had_runtime_error() const { return m_had_runtime_error; }
+void Interpreter::reset_runtime_error() { m_had_runtime_error = false; }
 
 Interpreter::RuntimeError::RuntimeError(Token token, const std::string &what)
     : std::runtime_error(what), token(std::move(token)) {}
@@ -137,4 +141,13 @@ void Interpreter::check_numeric_op(const Token &op, const LoxObject &left,
         return;
     }
     throw RuntimeError(op, "Operands must be numbers.");
+}
+
+void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
+    evaluate(expression.expression.get());
+}
+
+void Interpreter::visit_print_stmt(const Stmt::Print &print) {
+    evaluate(print.expression.get());
+    std::cout << std::boolalpha << result << std::endl;
 }
