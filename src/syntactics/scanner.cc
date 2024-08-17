@@ -1,5 +1,5 @@
-#include "src/logging.h"
 #include "src/syntactics/scanner.h"
+#include "src/logging.h"
 
 #include <iostream>
 #include <sstream>
@@ -125,7 +125,7 @@ void Scanner::scan_token() {
     case '/':
         if (match('/')) {
             // A comment goes until the end of the line.
-            while (peek() != '\n' && !is_at_end())
+            while (peek() != '\n' and !is_at_end())
                 advance();
         } else {
             add_token(SLASH);
@@ -173,7 +173,7 @@ void Scanner::number() {
         advance();
 
     // Look for a fractional part.
-    if (peek() == '.' && isdigit(peek_next())) {
+    if (peek() == '.' and isdigit(peek_next())) {
         // Consume the "."
         advance();
 

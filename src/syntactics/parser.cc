@@ -72,6 +72,9 @@ std::unique_ptr<Stmt> Parser::statement() {
     if (match(IF)) {
         return if_statement();
     }
+    if (match(WHILE)) {
+        return while_statement();
+    }
     if (match(PRINT)) {
         return print_statement();
     }
@@ -84,7 +87,7 @@ std::unique_ptr<Stmt> Parser::statement() {
 std::vector<std::unique_ptr<Stmt>> Parser::block_stmt_list() {
     std::vector<std::unique_ptr<Stmt>> statements;
 
-    while (!check(RIGHT_BRACE) && !is_at_end()) {
+    while (!check(RIGHT_BRACE) and !is_at_end()) {
         statements.push_back(std::move(declaration()));
     }
 
@@ -107,6 +110,15 @@ std::unique_ptr<Stmt> Parser::if_statement() {
         std::move(condition), std::move(then_branch), std::move(else_branch));
 }
 
+std::unique_ptr<Stmt> Parser::while_statement() {
+    consume(LEFT_PAREN, "Expect '(' after 'while'.");
+    auto condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' after condition.");
+    auto body = statement();
+
+    return std::make_unique<Stmt::While>(std::move(condition), std::move(body));
+}
+
 std::unique_ptr<Stmt> Parser::print_statement() {
     auto expr = expression();
     consume(SEMICOLON, "Expect ; after value.");
@@ -121,7 +133,7 @@ std::unique_ptr<Stmt> Parser::expression_statement() {
 
 std::unique_ptr<Expr> Parser::expression() { return assignment(); }
 std::unique_ptr<Expr> Parser::assignment() {
-    auto expr = equality();
+    auto expr = or_expr();
 
     if (match(EQUAL)) {
         Token equals = previous();
@@ -134,6 +146,32 @@ std::unique_ptr<Expr> Parser::assignment() {
         }
 
         report_parse_error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::or_expr() {
+    auto expr = and_expr();
+
+    while (match(OR)) {
+        Token op = previous();
+        auto right = and_expr();
+        expr = std::make_unique<Expr::Logical>(std::move(expr), op,
+                                               std::move(right));
+    }
+
+    return expr;
+}
+
+std::unique_ptr<Expr> Parser::and_expr() {
+    auto expr = equality();
+
+    while (match(AND)) {
+        Token op = previous();
+        auto right = equality();
+        expr = std::make_unique<Expr::Logical>(std::move(expr), op,
+                                               std::move(right));
     }
 
     return expr;

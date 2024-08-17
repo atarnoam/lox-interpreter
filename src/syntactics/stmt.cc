@@ -36,3 +36,10 @@ Stmt::Var::Var(Token name, std::unique_ptr<Expr> initializer)
 void Stmt::Var::accept(StmtVisitor &visitor) const {
     visitor.visit_var_stmt(*this);
 }
+
+Stmt::While::While(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body)
+    : condition(std::move(condition)), body(std::move(body)) {}
+
+void Stmt::While::accept(StmtVisitor &visitor) const {
+    visitor.visit_while_stmt(*this);
+}

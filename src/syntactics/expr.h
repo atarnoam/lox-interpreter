@@ -19,6 +19,7 @@ struct Expr {
     struct Binary;
     struct Grouping;
     struct Literal;
+    struct Logical;
     struct Unary;
     struct Variable;
 };
@@ -50,6 +51,14 @@ struct Expr::Literal : Expr {
     Token value;
 };
 
+struct Expr::Logical : Expr {
+    Logical(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right);
+    virtual void accept(ExprVisitor &visitor) const override;
+    std::unique_ptr<Expr> left;
+    Token op;
+    std::unique_ptr<Expr> right;
+};
+
 struct Expr::Unary : Expr {
     Unary(Token op, std::unique_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
@@ -68,6 +77,7 @@ struct ExprVisitor {
     virtual void visit_binary_expr(const Expr::Binary &) = 0;
     virtual void visit_grouping_expr(const Expr::Grouping &) = 0;
     virtual void visit_literal_expr(const Expr::Literal &) = 0;
+    virtual void visit_logical_expr(const Expr::Logical &) = 0;
     virtual void visit_unary_expr(const Expr::Unary &) = 0;
     virtual void visit_variable_expr(const Expr::Variable &) = 0;
 };

@@ -1,8 +1,6 @@
 var a = 1;
-if (1 + 1 != 2) {
-  print "entered if";
-  a = 2;
-} else {
-  print "entered else";
+while (a < 3) {
+    print a;
+    a = a + 1;
 }
 print a;

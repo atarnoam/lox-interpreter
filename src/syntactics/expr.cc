@@ -28,6 +28,14 @@ void Expr::Literal::accept(ExprVisitor &visitor) const {
     visitor.visit_literal_expr(*this);
 }
 
+Expr::Logical::Logical(std::unique_ptr<Expr> left, Token op,
+                       std::unique_ptr<Expr> right)
+    : left(std::move(left)), op(std::move(op)), right(std::move(right)) {}
+
+void Expr::Logical::accept(ExprVisitor &visitor) const {
+    visitor.visit_logical_expr(*this);
+}
+
 Expr::Unary::Unary(Token op, std::unique_ptr<Expr> right)
     : op(std::move(op)), right(std::move(right)) {}
 

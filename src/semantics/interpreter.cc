@@ -150,6 +150,23 @@ void Interpreter::visit_literal_expr(const Expr::Literal &literal) {
     }
 }
 
+void Interpreter::visit_logical_expr(const Expr::Logical &logical) {
+    evaluate(logical.left.get());
+
+    // Short circuiting
+    if (logical.op.type == OR) {
+        if (static_cast<bool>(expr_result)) {
+            return;
+        }
+    } else {
+        if (!static_cast<bool>(expr_result)) {
+            return;
+        }
+    }
+
+    evaluate(logical.right.get());
+}
+
 void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     unary.right->accept(*this);
     switch (unary.op.type) {
@@ -177,7 +194,8 @@ void Interpreter::check_numeric_op(const Token &op, const LoxObject &operand) {
 }
 void Interpreter::check_numeric_op(const Token &op, const LoxObject &left,
                                    const LoxObject &right) {
-    if (left.holds_alternative<double>() && right.holds_alternative<double>()) {
+    if (left.holds_alternative<double>() and
+        right.holds_alternative<double>()) {
         return;
     }
     throw RuntimeError(op, "Operands must be numbers.");
@@ -214,4 +232,10 @@ void Interpreter::visit_var_stmt(const Stmt::Var &var) {
     }
 
     curr_environment->define(var.name.lexeme, value);
+}
+
+void Interpreter::visit_while_stmt(const Stmt::While &stmt) {
+    while (static_cast<bool>(evaluate(stmt.condition.get()))) {
+        execute(stmt.body.get());
+    }
 }

@@ -254,10 +254,11 @@ int main(int argc, char **argv) {
     std::string output_dir = argv[1];
     define_and_format_ast(output_dir, "Expr",
                           {
-                              "Assign : Token name, Expr value",
-                              "Binary : Expr left, Token op, Expr right",
+                              "Assign   : Token name, Expr value",
+                              "Binary   : Expr left, Token op, Expr right",
                               "Grouping : Expr expression",
                               "Literal  : Token value",
+                              "Logical  : Expr left, Token op, Expr right",
                               "Unary    : Token op, Expr right",
                               "Variable : Token name",
                           },
@@ -270,10 +271,11 @@ int main(int argc, char **argv) {
         {
             "Block      : std::vector<std::unique_ptr<Stmt>> statements",
             "Expression : std::unique_ptr<Expr> expression",
-            "If : std::unique_ptr<Expr> condition, Stmt then_branch,"
+            "If         : std::unique_ptr<Expr> condition, Stmt then_branch,"
             "Stmt else_branch",
             "Print      : std::unique_ptr<Expr> expression",
             "Var        : Token name, std::unique_ptr<Expr> initializer",
+            "While      : std::unique_ptr<Expr> condition, Stmt body",
         },
         {
             "\"src/syntactics/expr.h\"",

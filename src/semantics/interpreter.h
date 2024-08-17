@@ -34,6 +34,7 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     virtual void visit_binary_expr(const Expr::Binary &binary) override;
     virtual void visit_grouping_expr(const Expr::Grouping &grouping) override;
     virtual void visit_literal_expr(const Expr::Literal &literal) override;
+    virtual void visit_logical_expr(const Expr::Logical &logical) override;
     virtual void visit_unary_expr(const Expr::Unary &unary) override;
     virtual void visit_variable_expr(const Expr::Variable &variable) override;
 
@@ -43,6 +44,7 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     virtual void visit_if_stmt(const Stmt::If &stmt);
     virtual void visit_print_stmt(const Stmt::Print &print) override;
     virtual void visit_var_stmt(const Stmt::Var &var) override;
+    virtual void visit_while_stmt(const Stmt::While &stmt) override;
 
     static void check_numeric_op(const Token &op, const LoxObject &operand);
     static void check_numeric_op(const Token &op, const LoxObject &left,

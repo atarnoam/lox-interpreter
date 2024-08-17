@@ -42,11 +42,14 @@ struct Parser {
     std::unique_ptr<Stmt> statement();
     std::vector<std::unique_ptr<Stmt>> block_stmt_list();
     std::unique_ptr<Stmt> if_statement();
+    std::unique_ptr<Stmt> while_statement();
     std::unique_ptr<Stmt> print_statement();
     std::unique_ptr<Stmt> expression_statement();
 
     std::unique_ptr<Expr> expression();
     std::unique_ptr<Expr> assignment();
+    std::unique_ptr<Expr> or_expr();
+    std::unique_ptr<Expr> and_expr();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();

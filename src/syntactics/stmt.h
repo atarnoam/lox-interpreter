@@ -21,6 +21,7 @@ struct Stmt {
     struct If;
     struct Print;
     struct Var;
+    struct While;
 };
 
 struct Stmt::Block : Stmt {
@@ -57,10 +58,18 @@ struct Stmt::Var : Stmt {
     std::unique_ptr<Expr> initializer;
 };
 
+struct Stmt::While : Stmt {
+    While(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body);
+    virtual void accept(StmtVisitor &visitor) const override;
+    std::unique_ptr<Expr> condition;
+    std::unique_ptr<Stmt> body;
+};
+
 struct StmtVisitor {
     virtual void visit_block_stmt(const Stmt::Block &) = 0;
     virtual void visit_expression_stmt(const Stmt::Expression &) = 0;
     virtual void visit_if_stmt(const Stmt::If &) = 0;
     virtual void visit_print_stmt(const Stmt::Print &) = 0;
     virtual void visit_var_stmt(const Stmt::Var &) = 0;
+    virtual void visit_while_stmt(const Stmt::While &) = 0;
 };
