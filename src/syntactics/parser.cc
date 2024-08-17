@@ -1,3 +1,4 @@
+#include "parser.h"
 #include "src/logging.h"
 #include "src/syntactics/parser.h"
 
@@ -8,7 +9,7 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse() {
     std::vector<std::unique_ptr<Stmt>> statements;
     while (!is_at_end()) {
         try {
-            statements.push_back(std::move(statement()));
+            statements.push_back(std::move(declaration()));
         } catch (const ParseError &error) {
         }
     }
@@ -43,6 +44,30 @@ const Token &Parser::consume(TokenType type, const std::string &message) {
     return advance();
 }
 
+std::unique_ptr<Stmt> Parser::declaration() {
+    try {
+        if (match(VAR)) {
+            return var_declaration();
+        }
+
+        return statement();
+    } catch (const ParseError &error) {
+        synchronize();
+        return nullptr;
+    }
+}
+
+std::unique_ptr<Stmt> Parser::var_declaration() {
+    Token name = consume(IDENTIFIER, "Expect variable name.");
+    std::unique_ptr<Expr> initializer = nullptr;
+    if (match(EQUAL)) {
+        initializer = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after variable declaration.");
+    return make_unique<Stmt::Var>(name, std::move(initializer));
+}
+
 std::unique_ptr<Stmt> Parser::statement() {
     if (match(PRINT)) {
         return print_statement();
@@ -62,7 +87,25 @@ std::unique_ptr<Stmt> Parser::expression_statement() {
     return make_unique<Stmt::Expression>(std::move(expr));
 }
 
-std::unique_ptr<Expr> Parser::expression() { return equality(); }
+std::unique_ptr<Expr> Parser::expression() { return assignment(); }
+std::unique_ptr<Expr> Parser::assignment() {
+    auto expr = equality();
+
+    if (match(EQUAL)) {
+        Token equals = previous();
+        auto value = assignment();
+
+        std::unique_ptr<Expr::Variable> var_expr =
+            cast_to<Expr::Variable, Expr>(std::move(expr));
+        if (var_expr) {
+            return make_unique<Expr::Assign>(var_expr->name, std::move(value));
+        }
+
+        report_parse_error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+}
 
 std::unique_ptr<Expr> Parser::equality() {
     auto expr = comparison();
@@ -137,6 +180,9 @@ std::unique_ptr<Expr> Parser::primary() {
         consume(RIGHT_PAREN, "Expect ')' after expression");
         expr = std::make_unique<Expr::Grouping>(std::move(inner_expr));
     } break;
+    case IDENTIFIER:
+        expr = std::make_unique<Expr::Variable>(token);
+        break;
     default:
         throw parse_error(peek(), "Expect expression");
     }
@@ -148,12 +194,39 @@ Parser::ParseError::ParseError(const std::string &what)
 
 Parser::ParseError Parser::parse_error(const Token &token,
                                        const std::string &message) {
-    m_had_error = true;
     auto full_message = report_parse_error(token, message);
     return ParseError(full_message);
 }
 
-std::string report_parse_error(const Token &token, const std::string &message) {
+void Parser::synchronize() {
+    advance();
+
+    while (!is_at_end()) {
+        if (previous().type == SEMICOLON) {
+            return;
+        }
+
+        switch (peek().type) {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+            return;
+        default:
+            break;
+        }
+
+        advance();
+    }
+}
+
+std::string Parser::report_parse_error(const Token &token,
+                                       const std::string &message) {
+    m_had_error = true;
     if (token.type == END_OF_FILE) {
         return report(token.line, "at end", message);
     } else {

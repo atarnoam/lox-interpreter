@@ -1,5 +1,7 @@
 #pragma once
+
 #include <concepts>
+#include <memory>
 #include <type_traits>
 
 template <typename TypeToCheck, typename TypeToCheckAgainst>
@@ -26,3 +28,14 @@ auto variant_cast(const std::variant<Args...> &v)
 
 template <class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+template <typename Derived, typename Base>
+requires std::is_convertible_v<Derived &, Base &> && std::is_polymorphic_v<Base>
+inline std::unique_ptr<Derived> cast_to(std::unique_ptr<Base> &&ptr) {
+    Derived *d = dynamic_cast<Derived *>(ptr.get());
+    if (d) {
+        ptr.release();
+        return std::unique_ptr<Derived>(d);
+    }
+    return nullptr;
+}

@@ -37,22 +37,28 @@ struct Parser {
     const Token &advance();
     const Token &consume(TokenType type, const std::string &message);
 
+    std::unique_ptr<Stmt> declaration();
+    std::unique_ptr<Stmt> var_declaration();
     std::unique_ptr<Stmt> statement();
     std::unique_ptr<Stmt> print_statement();
     std::unique_ptr<Stmt> expression_statement();
 
     std::unique_ptr<Expr> expression();
+    std::unique_ptr<Expr> assignment();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Expr> unary();
     std::unique_ptr<Expr> primary();
+
+    std::string report_parse_error(const Token &token,
+                                   const std::string &message);
     ParseError parse_error(const Token &token, const std::string &message);
+
+    void synchronize();
 
     std::vector<Token> tokens;
     size_t curr;
     bool m_had_error;
 };
-
-std::string report_parse_error(const Token &token, const std::string &message);

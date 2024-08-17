@@ -1,6 +1,8 @@
 #pragma once
 
+#include "src/semantics/environment.h"
 #include "src/semantics/lox_object.h"
+#include "src/semantics/runtime_error.h"
 #include "src/syntactics/expr.h"
 #include "src/syntactics/stmt.h"
 
@@ -19,26 +21,24 @@ struct Interpreter : ExprVisitor, StmtVisitor {
     bool had_runtime_error() const;
     void reset_runtime_error();
 
-    struct RuntimeError : std::runtime_error {
-        explicit RuntimeError(Token token, const std::string &what);
-
-        Token token;
-    };
-
   private:
+    virtual void visit_assign_expr(const Expr::Assign &assign) override;
     virtual void visit_binary_expr(const Expr::Binary &binary) override;
     virtual void visit_grouping_expr(const Expr::Grouping &grouping) override;
     virtual void visit_literal_expr(const Expr::Literal &literal) override;
     virtual void visit_unary_expr(const Expr::Unary &unary) override;
+    virtual void visit_variable_expr(const Expr::Variable &variable) override;
 
     virtual void
     visit_expression_stmt(const Stmt::Expression &expression) override;
     virtual void visit_print_stmt(const Stmt::Print &print) override;
+    virtual void visit_var_stmt(const Stmt::Var &var) override;
 
     static void check_numeric_op(const Token &op, const LoxObject &operand);
     static void check_numeric_op(const Token &op, const LoxObject &left,
                                  const LoxObject &right);
 
-    LoxObject result;
+    Environment environment;
+    LoxObject expr_result;
     bool m_had_runtime_error;
 };

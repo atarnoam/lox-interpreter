@@ -1,13 +1,15 @@
 #include "src/semantics/interpreter.h"
 
+#include "interpreter.h"
 #include "src/logging.h"
 #include "src/tp_utils.h"
 
-Interpreter::Interpreter() : result(LoxNull{}), m_had_runtime_error(false) {}
+Interpreter::Interpreter()
+    : environment(), expr_result(LoxNull{}), m_had_runtime_error(false) {}
 
 LoxObject Interpreter::evaluate(const Expr *expr) {
     expr->accept(*this);
-    return result;
+    return expr_result;
 }
 
 void Interpreter::execute(const Stmt *stmt) { stmt->accept(*this); }
@@ -17,7 +19,7 @@ void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
         for (const auto &stmt : stmts) {
             execute(stmt.get());
         }
-    } catch (const Interpreter::RuntimeError &err) {
+    } catch (const RuntimeError &err) {
         error(err.token.line, err.what());
         m_had_runtime_error = true;
     }
@@ -26,39 +28,42 @@ void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts) {
 bool Interpreter::had_runtime_error() const { return m_had_runtime_error; }
 void Interpreter::reset_runtime_error() { m_had_runtime_error = false; }
 
-Interpreter::RuntimeError::RuntimeError(Token token, const std::string &what)
-    : std::runtime_error(what), token(std::move(token)) {}
+void Interpreter::visit_assign_expr(const Expr::Assign &assign) {
+    LoxObject value = evaluate(assign.value.get());
+    environment.assign(assign.name, value);
+    expr_result = value;
+}
 
 void Interpreter::visit_binary_expr(const Expr::Binary &binary) {
     binary.left->accept(*this);
-    LoxObject left = result;
+    LoxObject left = expr_result;
 
     binary.right->accept(*this);
-    LoxObject right = result;
+    LoxObject right = expr_result;
 
     switch (binary.op.type) {
     case MINUS:
         check_numeric_op(binary.op, left, right);
-        result = left.get<double>() - right.get<double>();
+        expr_result = left.get<double>() - right.get<double>();
         break;
     case SLASH:
         check_numeric_op(binary.op, left, right);
         if (right.get<double>() == 0) {
             throw RuntimeError(binary.op, "Division by zero.");
         }
-        result = left.get<double>() / right.get<double>();
+        expr_result = left.get<double>() / right.get<double>();
         break;
     case STAR:
         check_numeric_op(binary.op, left, right);
-        result = left.get<double>() * right.get<double>();
+        expr_result = left.get<double>() * right.get<double>();
         break;
     case PLUS:
         if (left.holds_alternative<double>() &&
             right.holds_alternative<double>()) {
-            result = left.get<double>() + right.get<double>();
+            expr_result = left.get<double>() + right.get<double>();
         } else if (left.holds_alternative<std::string>() &&
                    right.holds_alternative<std::string>()) {
-            result = left.get<std::string>() + right.get<std::string>();
+            expr_result = left.get<std::string>() + right.get<std::string>();
         } else {
             throw RuntimeError(binary.op,
                                "Operands must be two numbers or two strings.");
@@ -66,25 +71,25 @@ void Interpreter::visit_binary_expr(const Expr::Binary &binary) {
         break;
     case GREATER:
         check_numeric_op(binary.op, left, right);
-        result = left > right;
+        expr_result = left > right;
         break;
     case GREATER_EQUAL:
         check_numeric_op(binary.op, left, right);
-        result = left >= right;
+        expr_result = left >= right;
         break;
     case LESS:
         check_numeric_op(binary.op, left, right);
-        result = left < right;
+        expr_result = left < right;
         break;
     case LESS_EQUAL:
         check_numeric_op(binary.op, left, right);
-        result = left <= right;
+        expr_result = left <= right;
         break;
     case EQUAL_EQUAL:
-        result = left == right;
+        expr_result = left == right;
         break;
     case BANG_EQUAL:
-        result = left != right;
+        expr_result = left != right;
         break;
     default:
         break;
@@ -98,17 +103,17 @@ void Interpreter::visit_grouping_expr(const Expr::Grouping &grouping) {
 void Interpreter::visit_literal_expr(const Expr::Literal &literal) {
     switch (literal.value.type) {
     case NIL:
-        result = LoxNull{};
+        expr_result = LoxNull{};
         break;
     case TRUE:
-        result = true;
+        expr_result = true;
         break;
     case FALSE:
-        result = false;
+        expr_result = false;
         break;
     default:
         if (literal.value.literal.has_value()) {
-            result = variant_cast(literal.value.literal.value());
+            expr_result = variant_cast(literal.value.literal.value());
         }
         break;
     }
@@ -118,15 +123,19 @@ void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     unary.right->accept(*this);
     switch (unary.op.type) {
     case BANG:
-        result = !static_cast<bool>(result);
+        expr_result = !static_cast<bool>(expr_result);
         break;
     case MINUS:
-        check_numeric_op(unary.op, result);
-        result = -result.get<double>();
+        check_numeric_op(unary.op, expr_result);
+        expr_result = -expr_result.get<double>();
         break;
     default:
         break;
     }
+}
+
+void Interpreter::visit_variable_expr(const Expr::Variable &variable) {
+    expr_result = environment.get(variable.name);
 }
 
 void Interpreter::check_numeric_op(const Token &op, const LoxObject &operand) {
@@ -149,5 +158,14 @@ void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
 
 void Interpreter::visit_print_stmt(const Stmt::Print &print) {
     evaluate(print.expression.get());
-    std::cout << std::boolalpha << result << std::endl;
+    std::cout << std::boolalpha << expr_result << std::endl;
+}
+
+void Interpreter::visit_var_stmt(const Stmt::Var &var) {
+    LoxObject value{LoxNull{}};
+
+    if (var.initializer) {
+        value = evaluate(var.initializer.get());
+    }
+    environment.define(var.name.lexeme, value);
 }

@@ -1,5 +1,6 @@
 #include "src/semantics/lox_object.h"
 
+#include "lox_object.h"
 #include "src/tp_utils.h"
 
 LoxNull::operator bool() const { return false; }
@@ -29,10 +30,10 @@ LoxObject::operator bool() const {
 bool LoxObject::operator==(const LoxObject &other) const {
     return object == other.object;
 }
+
 std::partial_ordering LoxObject::operator<=>(const LoxObject &other) const {
     return get<double>() <=> other.get<double>();
 }
-#include <sstream>
 
 std::ostream &operator<<(std::ostream &os, const LoxObject &lox_object) {
     return std::visit([&os](auto &&x) -> std::ostream & { return os << x; },

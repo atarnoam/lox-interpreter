@@ -1,5 +1,12 @@
 #include "src/syntactics/expr.h"
 
+Expr::Assign::Assign(Token name, std::unique_ptr<Expr> value)
+    : name(std::move(name)), value(std::move(value)) {}
+
+void Expr::Assign::accept(ExprVisitor &visitor) const {
+    visitor.visit_assign_expr(*this);
+}
+
 Expr::Binary::Binary(std::unique_ptr<Expr> left, Token op,
                      std::unique_ptr<Expr> right)
     : left(std::move(left)), op(std::move(op)), right(std::move(right)) {}
@@ -26,4 +33,10 @@ Expr::Unary::Unary(Token op, std::unique_ptr<Expr> right)
 
 void Expr::Unary::accept(ExprVisitor &visitor) const {
     visitor.visit_unary_expr(*this);
+}
+
+Expr::Variable::Variable(Token name) : name(std::move(name)) {}
+
+void Expr::Variable::accept(ExprVisitor &visitor) const {
+    visitor.visit_variable_expr(*this);
 }

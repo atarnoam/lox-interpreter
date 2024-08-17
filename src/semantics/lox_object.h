@@ -17,6 +17,7 @@ std::ostream &operator<<(std::ostream &os, const LoxNull &null);
 struct LoxObject {
     using LoxObjectT = std::variant<LoxNull, bool, double, std::string>;
 
+    LoxObject() = default;
     LoxObject(LoxObjectT object);
     LoxObject(TokenLiteral token_literal);
     template <typename T> LoxObject(T x) : object(std::move(x)) {}

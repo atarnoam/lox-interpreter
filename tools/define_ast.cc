@@ -224,17 +224,6 @@ void define_ast(const fs::path &file_h, const fs::path &file_cc,
     ofile_h << fmt::format("struct {};", ast_data.visitor_name) << std::endl
             << std::endl;
 
-    // // Declare base class
-    // ofile_h << fmt::format("struct {};", base_name) << std::endl <<
-    // std::endl;
-
-    // // Declare subclasses
-    // for (const auto &[subclass_name, _] : ast_data.subclasses) {
-    //     ofile_h << fmt::format("struct {}::{};", base_name, subclass_name)
-    //             << std::endl;
-    // }
-    // ofile_h << std::endl;
-
     define_base_class(ofile_h, ast_data);
 
     define_subclasses(ofile_h, ofile_cc, ast_data);
@@ -265,18 +254,21 @@ int main(int argc, char **argv) {
     std::string output_dir = argv[1];
     define_and_format_ast(output_dir, "Expr",
                           {
+                              "Assign : Token name, Expr value",
                               "Binary : Expr left, Token op, Expr right",
                               "Grouping : Expr expression",
                               "Literal  : Token value",
                               "Unary    : Token op, Expr right",
-
+                              "Variable : Token name",
                           },
                           {"syntactics/token.h"});
 
-    define_and_format_ast(output_dir, "Stmt",
-                          {
-                              "Expression : std::unique_ptr<Expr> expression",
-                              "Print : std::unique_ptr<Expr> expression",
-                          },
-                          {"syntactics/expr.h"});
+    define_and_format_ast(
+        output_dir, "Stmt",
+        {
+            "Expression : std::unique_ptr<Expr> expression",
+            "Print : std::unique_ptr<Expr> expression",
+            "Var : Token name, std::unique_ptr<Expr> initializer",
+        },
+        {"syntactics/expr.h"});
 }
