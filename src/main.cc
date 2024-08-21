@@ -11,7 +11,7 @@
 #include <optional>
 #include <sstream>
 
-std::optional<std::vector<std::unique_ptr<Stmt>>>
+std::optional<std::vector<std::shared_ptr<Stmt>>>
 parse_stream(std::istream &&is) {
     Scanner scanner(std::move(is));
 

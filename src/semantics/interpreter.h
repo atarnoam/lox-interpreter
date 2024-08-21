@@ -21,9 +21,9 @@ struct Interpreter : ExprVisitor, StmtVisitor {
 
     LoxObject evaluate(const Expr *expr);
     void execute(const Stmt *stmt);
-    void execute_block(const std::vector<std::unique_ptr<Stmt>> &stmts,
+    void execute_block(const std::vector<std::shared_ptr<Stmt>> &stmts,
                        const std::shared_ptr<Environment> &environment);
-    void interpret(const std::vector<std::unique_ptr<Stmt>> &stmts,
+    void interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
                    InterpreterMode mode = InterpreterMode::FILE);
 
     bool had_runtime_error() const;

@@ -25,24 +25,24 @@ struct Expr {
 };
 
 struct Expr::Assign : Expr {
-    Assign(Token name, std::unique_ptr<Expr> value);
+    Assign(Token name, std::shared_ptr<Expr> value);
     virtual void accept(ExprVisitor &visitor) const override;
     Token name;
-    std::unique_ptr<Expr> value;
+    std::shared_ptr<Expr> value;
 };
 
 struct Expr::Binary : Expr {
-    Binary(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right);
+    Binary(std::shared_ptr<Expr> left, Token op, std::shared_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
-    std::unique_ptr<Expr> left;
+    std::shared_ptr<Expr> left;
     Token op;
-    std::unique_ptr<Expr> right;
+    std::shared_ptr<Expr> right;
 };
 
 struct Expr::Grouping : Expr {
-    Grouping(std::unique_ptr<Expr> expression);
+    Grouping(std::shared_ptr<Expr> expression);
     virtual void accept(ExprVisitor &visitor) const override;
-    std::unique_ptr<Expr> expression;
+    std::shared_ptr<Expr> expression;
 };
 
 struct Expr::Literal : Expr {
@@ -52,18 +52,18 @@ struct Expr::Literal : Expr {
 };
 
 struct Expr::Logical : Expr {
-    Logical(std::unique_ptr<Expr> left, Token op, std::unique_ptr<Expr> right);
+    Logical(std::shared_ptr<Expr> left, Token op, std::shared_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
-    std::unique_ptr<Expr> left;
+    std::shared_ptr<Expr> left;
     Token op;
-    std::unique_ptr<Expr> right;
+    std::shared_ptr<Expr> right;
 };
 
 struct Expr::Unary : Expr {
-    Unary(Token op, std::unique_ptr<Expr> right);
+    Unary(Token op, std::shared_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
     Token op;
-    std::unique_ptr<Expr> right;
+    std::shared_ptr<Expr> right;
 };
 
 struct Expr::Variable : Expr {

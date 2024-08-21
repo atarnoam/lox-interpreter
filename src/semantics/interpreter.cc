@@ -21,7 +21,7 @@ void Interpreter::execute(const Stmt *stmt) {
 }
 
 void Interpreter::execute_block(
-    const std::vector<std::unique_ptr<Stmt>> &stmts,
+    const std::vector<std::shared_ptr<Stmt>> &stmts,
     const std::shared_ptr<Environment> &environment) {
     auto previous_environment = curr_environment;
     curr_environment = environment;
@@ -31,7 +31,7 @@ void Interpreter::execute_block(
     curr_environment = previous_environment;
 }
 
-void Interpreter::interpret(const std::vector<std::unique_ptr<Stmt>> &stmts,
+void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
                             InterpreterMode mode) {
     if (stmts.empty()) {
         return;

@@ -25,44 +25,44 @@ struct Stmt {
 };
 
 struct Stmt::Block : Stmt {
-    Block(std::vector<std::unique_ptr<Stmt>> statements);
+    Block(std::vector<std::shared_ptr<Stmt>> statements);
     virtual void accept(StmtVisitor &visitor) const override;
-    std::vector<std::unique_ptr<Stmt>> statements;
+    std::vector<std::shared_ptr<Stmt>> statements;
 };
 
 struct Stmt::Expression : Stmt {
-    Expression(std::unique_ptr<Expr> expression);
+    Expression(std::shared_ptr<Expr> expression);
     virtual void accept(StmtVisitor &visitor) const override;
-    std::unique_ptr<Expr> expression;
+    std::shared_ptr<Expr> expression;
 };
 
 struct Stmt::If : Stmt {
-    If(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> then_branch,
-       std::unique_ptr<Stmt> else_branch);
+    If(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> then_branch,
+       std::shared_ptr<Stmt> else_branch);
     virtual void accept(StmtVisitor &visitor) const override;
-    std::unique_ptr<Expr> condition;
-    std::unique_ptr<Stmt> then_branch;
-    std::unique_ptr<Stmt> else_branch;
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> then_branch;
+    std::shared_ptr<Stmt> else_branch;
 };
 
 struct Stmt::Print : Stmt {
-    Print(std::unique_ptr<Expr> expression);
+    Print(std::shared_ptr<Expr> expression);
     virtual void accept(StmtVisitor &visitor) const override;
-    std::unique_ptr<Expr> expression;
+    std::shared_ptr<Expr> expression;
 };
 
 struct Stmt::Var : Stmt {
-    Var(Token name, std::unique_ptr<Expr> initializer);
+    Var(Token name, std::shared_ptr<Expr> initializer);
     virtual void accept(StmtVisitor &visitor) const override;
     Token name;
-    std::unique_ptr<Expr> initializer;
+    std::shared_ptr<Expr> initializer;
 };
 
 struct Stmt::While : Stmt {
-    While(std::unique_ptr<Expr> condition, std::unique_ptr<Stmt> body);
+    While(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> body);
     virtual void accept(StmtVisitor &visitor) const override;
-    std::unique_ptr<Expr> condition;
-    std::unique_ptr<Stmt> body;
+    std::shared_ptr<Expr> condition;
+    std::shared_ptr<Stmt> body;
 };
 
 struct StmtVisitor {

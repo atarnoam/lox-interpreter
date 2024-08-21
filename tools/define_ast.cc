@@ -115,7 +115,7 @@ void define_subclass(std::ostream &os_h, std::ostream &os_cc,
 
     for (auto &[field_type, field_name] : fields) {
         if (field_type == base_class) {
-            field_type = fmt::format("std::unique_ptr<{}>", field_type);
+            field_type = fmt::format("std::shared_ptr<{}>", field_type);
         }
     }
     os_h << fmt::format("struct {} : {} {{", scoped_name, base_class)
@@ -269,13 +269,13 @@ int main(int argc, char **argv) {
     define_and_format_ast(
         output_dir, "Stmt",
         {
-            "Block      : std::vector<std::unique_ptr<Stmt>> statements",
-            "Expression : std::unique_ptr<Expr> expression",
-            "If         : std::unique_ptr<Expr> condition, Stmt then_branch,"
+            "Block      : std::vector<std::shared_ptr<Stmt>> statements",
+            "Expression : std::shared_ptr<Expr> expression",
+            "If         : std::shared_ptr<Expr> condition, Stmt then_branch,"
             "Stmt else_branch",
-            "Print      : std::unique_ptr<Expr> expression",
-            "Var        : Token name, std::unique_ptr<Expr> initializer",
-            "While      : std::unique_ptr<Expr> condition, Stmt body",
+            "Print      : std::shared_ptr<Expr> expression",
+            "Var        : Token name, std::shared_ptr<Expr> initializer",
+            "While      : std::shared_ptr<Expr> condition, Stmt body",
         },
         {
             "\"src/syntactics/expr.h\"",
