@@ -1,11 +1,14 @@
-fun fib(x) {
-    if (x <= 1) {  
-        return x; 
+fun make_counter() {
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        return i;
     }
-    // var y = fib(x - 1);
-    // var z = fib(x - 2);
-    // return y + z;
-    return fib(x - 1) + fib(x - 2);
+
+    return count;
 }
 
-print fib(8);
+var counter = make_counter();
+print counter();
+print counter();
+print counter();

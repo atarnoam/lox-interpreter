@@ -6,11 +6,13 @@
 #include "src/semantics/lox_object.h"
 #include "src/semantics/return.h"
 
-LoxFunction::LoxFunction(std::shared_ptr<Stmt::Function> declaration)
-    : declaration(std::move(declaration)) {}
+LoxFunction::LoxFunction(std::shared_ptr<Stmt::Function> declaration,
+                         std::shared_ptr<Environment> closure)
+    : declaration(std::move(declaration)), closure(std::move(closure)) {}
 
-LoxFunction::LoxFunction(const Stmt::Function &declaration)
-    : LoxFunction(std::make_shared<Stmt::Function>(declaration)) {}
+LoxFunction::LoxFunction(const Stmt::Function &declaration,
+                         std::shared_ptr<Environment> closure)
+    : LoxFunction(std::make_shared<Stmt::Function>(declaration), closure) {}
 
 std::string LoxFunction::to_string() const {
     return "<fun " + declaration->name.lexeme + ">";
@@ -18,7 +20,7 @@ std::string LoxFunction::to_string() const {
 
 LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
                             const std::vector<LoxObject> &arguments) {
-    auto environment = std::make_shared<Environment>(*interpreter.globals);
+    auto environment = std::make_shared<Environment>(closure);
     for (size_t i = 0; i < declaration->params.size(); ++i) {
         environment->define(declaration->params[i].lexeme, arguments[i]);
     }

@@ -219,7 +219,7 @@ void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
 }
 
 void Interpreter::visit_function_stmt(const Stmt::Function &func) {
-    auto function = std::make_shared<LoxFunction>(func);
+    auto function = std::make_shared<LoxFunction>(func, curr_environment);
     curr_environment->define(func.name.lexeme, function);
 }
 
