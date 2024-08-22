@@ -15,6 +15,15 @@ void Expr::Binary::accept(ExprVisitor &visitor) const {
     visitor.visit_binary_expr(*this);
 }
 
+Expr::Call::Call(std::shared_ptr<Expr> callee, Token paren,
+                 std::vector<std::shared_ptr<Expr>> arguments)
+    : callee(std::move(callee)), paren(std::move(paren)),
+      arguments(std::move(arguments)) {}
+
+void Expr::Call::accept(ExprVisitor &visitor) const {
+    visitor.visit_call_expr(*this);
+}
+
 Expr::Grouping::Grouping(std::shared_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

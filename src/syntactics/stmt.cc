@@ -23,6 +23,14 @@ void Stmt::If::accept(StmtVisitor &visitor) const {
     visitor.visit_if_stmt(*this);
 }
 
+Stmt::Function::Function(Token name, std::vector<Token> params,
+                         std::vector<std::shared_ptr<Stmt>> body)
+    : name(std::move(name)), params(std::move(params)), body(std::move(body)) {}
+
+void Stmt::Function::accept(StmtVisitor &visitor) const {
+    visitor.visit_function_stmt(*this);
+}
+
 Stmt::Print::Print(std::shared_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

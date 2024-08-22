@@ -2,33 +2,22 @@
 
 #include "interpreter.h"
 #include "src/logging.h"
+#include "src/semantics/lox_function.h"
+#include "src/semantics/natives.h"
 #include "src/tp_utils.h"
 
 Interpreter::Interpreter()
-    : global_environment(std::make_shared<Environment>()),
-      curr_environment(global_environment), expr_result(LoxNull{}),
-      m_had_runtime_error(false) {}
-
-LoxObject Interpreter::evaluate(const Expr *expr) {
-    expr->accept(*this);
-    return expr_result;
+    : AbstractInterpreter(), expr_result(LoxNull{}),
+      m_had_runtime_error(false) {
+    for (const auto &[name, obj] : natives) {
+        globals->define(name, obj);
+    }
 }
 
 void Interpreter::execute(const Stmt *stmt) {
     if (stmt) {
         stmt->accept(*this);
     }
-}
-
-void Interpreter::execute_block(
-    const std::vector<std::shared_ptr<Stmt>> &stmts,
-    const std::shared_ptr<Environment> &environment) {
-    auto previous_environment = curr_environment;
-    curr_environment = environment;
-    for (const auto &stmt : stmts) {
-        execute(stmt.get());
-    }
-    curr_environment = previous_environment;
 }
 
 void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
@@ -39,7 +28,7 @@ void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
 
     try {
         std::for_each(stmts.begin(), --stmts.end(),
-                      [this](const auto &stmt) { execute(stmt.get()); });
+                      [this](const auto &stmt) { execute(stmt); });
 
         const Stmt *last_stmt = (--stmts.end())->get();
         execute(last_stmt);
@@ -47,12 +36,12 @@ void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
         const Stmt::Expression *expression =
             dynamic_cast<const Stmt::Expression *>(last_stmt);
         if (mode == InterpreterMode::INTERACTIVE && expression != nullptr) {
-            std::cout << expr_result << std::endl;
+            print_expr_result();
         }
     } catch (const RuntimeError &err) {
         error(err.token.line, err.what());
         m_had_runtime_error = true;
-        curr_environment = global_environment;
+        curr_environment = globals;
     }
 }
 
@@ -60,7 +49,7 @@ bool Interpreter::had_runtime_error() const { return m_had_runtime_error; }
 void Interpreter::reset_runtime_error() { m_had_runtime_error = false; }
 
 void Interpreter::visit_assign_expr(const Expr::Assign &assign) {
-    LoxObject value = evaluate(assign.value.get());
+    LoxObject value = evaluate(assign.value);
     curr_environment->assign(assign.name, value);
     expr_result = value;
 }
@@ -151,7 +140,7 @@ void Interpreter::visit_literal_expr(const Expr::Literal &literal) {
 }
 
 void Interpreter::visit_logical_expr(const Expr::Logical &logical) {
-    evaluate(logical.left.get());
+    evaluate(logical.left);
 
     // Short circuiting
     if (logical.op.type == OR) {
@@ -164,7 +153,7 @@ void Interpreter::visit_logical_expr(const Expr::Logical &logical) {
         }
     }
 
-    evaluate(logical.right.get());
+    evaluate(logical.right);
 }
 
 void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
@@ -180,6 +169,20 @@ void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     default:
         break;
     }
+}
+
+void Interpreter::visit_call_expr(const Expr::Call &expr) {
+    LoxObject callee = evaluate(expr.callee);
+
+    std::vector<LoxObject> arguments;
+    for (const auto &argument_expr : expr.arguments) {
+        arguments.push_back(evaluate(argument_expr));
+    }
+    if (not callee.holds_alternative<std::shared_ptr<LoxCallable>>()) {
+        throw RuntimeError(expr.paren, "Can only call functions and classes.");
+    }
+    auto function = callee.get<std::shared_ptr<LoxCallable>>();
+    expr_result = function->call(*this, arguments);
 }
 
 void Interpreter::visit_variable_expr(const Expr::Variable &variable) {
@@ -201,41 +204,50 @@ void Interpreter::check_numeric_op(const Token &op, const LoxObject &left,
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
+void Interpreter::print_expr_result() {
+    std::cout << std::boolalpha << expr_result << std::endl;
+}
+
 void Interpreter::visit_block_stmt(const Stmt::Block &block) {
     execute_block(block.statements,
                   std::make_shared<Environment>(curr_environment));
 }
 
 void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
-    evaluate(expression.expression.get());
+    evaluate(expression.expression);
+}
+
+void Interpreter::visit_function_stmt(const Stmt::Function &func) {
+    auto function = std::make_shared<LoxFunction>(func);
+    curr_environment->define(func.name.lexeme, function);
 }
 
 void Interpreter::visit_if_stmt(const Stmt::If &stmt) {
-    evaluate(stmt.condition.get());
+    evaluate(stmt.condition);
     if (static_cast<bool>(expr_result)) {
-        execute(stmt.then_branch.get());
+        execute(stmt.then_branch);
     } else {
-        execute(stmt.else_branch.get());
+        execute(stmt.else_branch);
     }
 }
 
 void Interpreter::visit_print_stmt(const Stmt::Print &print) {
-    evaluate(print.expression.get());
-    std::cout << std::boolalpha << expr_result << std::endl;
+    evaluate(print.expression);
+    print_expr_result();
 }
 
 void Interpreter::visit_var_stmt(const Stmt::Var &var) {
     LoxObject value{LoxNull{}};
 
     if (var.initializer) {
-        value = evaluate(var.initializer.get());
+        value = evaluate(var.initializer);
     }
 
     curr_environment->define(var.name.lexeme, value);
 }
 
 void Interpreter::visit_while_stmt(const Stmt::While &stmt) {
-    while (static_cast<bool>(evaluate(stmt.condition.get()))) {
-        execute(stmt.body.get());
+    while (static_cast<bool>(evaluate(stmt.condition))) {
+        execute(stmt.body);
     }
 }

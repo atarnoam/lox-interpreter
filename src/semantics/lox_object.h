@@ -1,10 +1,13 @@
 #pragma once
 
+#include "src/semantics/lox_callable.fwd.h"
 #include "src/syntactics/token.h"
 #include "src/tp_utils.h"
+
 #include <compare>
 #include <string>
 #include <variant>
+#include <vector>
 
 struct LoxNull {
     operator bool() const;
@@ -15,21 +18,28 @@ struct LoxNull {
 std::ostream &operator<<(std::ostream &os, const LoxNull &null);
 
 struct LoxObject {
-    using LoxObjectT = std::variant<LoxNull, bool, double, std::string>;
+    using LoxObjectT = std::variant<LoxNull, bool, double, std::string,
+                                    std::shared_ptr<LoxCallable>>;
 
     LoxObject() = default;
     LoxObject(LoxObjectT object);
     LoxObject(TokenLiteral token_literal);
-    template <typename T> LoxObject(T x) : object(std::move(x)) {}
+    template <typename T>
+    LoxObject(T x) : object(std::move(x)) {}
 
     operator LoxObjectT() const;
 
-    template <class T> constexpr T &get() { return std::get<T>(object); }
-    template <class T> constexpr const T &get() const {
+    template <class T>
+    constexpr T &get() {
+        return std::get<T>(object);
+    }
+    template <class T>
+    constexpr const T &get() const {
         return std::get<T>(object);
     }
 
-    template <class T> constexpr bool holds_alternative() const {
+    template <class T>
+    constexpr bool holds_alternative() const {
         return std::holds_alternative<T>(object);
     }
 
@@ -41,5 +51,3 @@ struct LoxObject {
   private:
     LoxObjectT object;
 };
-
-std::ostream &operator<<(std::ostream &os, const LoxObject &lox_object);

@@ -6,6 +6,8 @@ cc_binary(
     deps = [
         ":ast_printer",
         "//src/semantics:interpreter",
+        "//src/semantics:lox_callable",
+        "//src/semantics:lox_function",
         "//src/syntactics:expr",
         "//src/syntactics:parser",
         "//src/syntactics:scanner",

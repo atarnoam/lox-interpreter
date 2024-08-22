@@ -39,6 +39,7 @@ struct Parser {
 
     std::shared_ptr<Stmt> declaration();
     std::shared_ptr<Stmt> var_declaration();
+    std::shared_ptr<Stmt> function(const std::string &kind);
     std::shared_ptr<Stmt> statement();
     std::vector<std::shared_ptr<Stmt>> block_stmt_list();
     std::shared_ptr<Stmt> if_statement();
@@ -56,7 +57,10 @@ struct Parser {
     std::shared_ptr<Expr> term();
     std::shared_ptr<Expr> factor();
     std::shared_ptr<Expr> unary();
+    std::shared_ptr<Expr> call();
     std::shared_ptr<Expr> primary();
+
+    std::shared_ptr<Expr> finish_call(std::shared_ptr<Expr> callee);
 
     std::string report_parse_error(const Token &token,
                                    const std::string &message);

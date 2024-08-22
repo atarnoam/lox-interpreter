@@ -1,6 +1,6 @@
 #include "src/semantics/lox_object.h"
-
 #include "lox_object.h"
+// #include "src/semantics/print_lox_callable.h"
 #include "src/tp_utils.h"
 
 LoxNull::operator bool() const { return false; }
@@ -21,6 +21,9 @@ LoxObject::operator LoxObjectT() const { return object; }
 
 LoxObject::operator bool() const {
     return std::visit(overloaded{
+                          [](const std::shared_ptr<LoxCallable> &ptr) {
+                              return ptr != nullptr;
+                          },
                           [](const std::string &x) { return !x.empty(); },
                           [](auto x) -> bool { return x; },
                       },
@@ -33,9 +36,4 @@ bool LoxObject::operator==(const LoxObject &other) const {
 
 std::partial_ordering LoxObject::operator<=>(const LoxObject &other) const {
     return get<double>() <=> other.get<double>();
-}
-
-std::ostream &operator<<(std::ostream &os, const LoxObject &lox_object) {
-    return std::visit([&os](auto &&x) -> std::ostream & { return os << x; },
-                      static_cast<LoxObject::LoxObjectT>(lox_object));
 }

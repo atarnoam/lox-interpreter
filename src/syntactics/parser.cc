@@ -49,6 +49,9 @@ std::shared_ptr<Stmt> Parser::declaration() {
         if (match(VAR)) {
             return var_declaration();
         }
+        if (match(FUN)) {
+            return function("function");
+        }
 
         return statement();
     } catch (const ParseError &error) {
@@ -187,6 +190,27 @@ std::shared_ptr<Stmt> Parser::expression_statement() {
 }
 
 std::shared_ptr<Expr> Parser::expression() { return assignment(); }
+
+std::shared_ptr<Stmt> Parser::function(const std::string &kind) {
+    Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
+    consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+    std::vector<Token> parameters;
+    if (!check(RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= 255) {
+                report_parse_error(peek(),
+                                   "Can't have more than 255 parameters.");
+            }
+
+            parameters.push_back(consume(IDENTIFIER, "Expect parameter name."));
+        } while (match(COMMA));
+    }
+    consume(RIGHT_PAREN, "Expect ')' after parameters.");
+    consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+    auto body = block_stmt_list();
+    return std::make_shared<Stmt::Function>(name, parameters, std::move(body));
+}
+
 std::shared_ptr<Expr> Parser::assignment() {
     auto expr = or_expr();
 
@@ -286,7 +310,20 @@ std::shared_ptr<Expr> Parser::unary() {
         auto right = unary();
         return std::make_shared<Expr::Unary>(op, std::move(right));
     }
-    return primary();
+    return call();
+}
+
+std::shared_ptr<Expr> Parser::call() {
+    auto expr = primary();
+    while (true) {
+        if (match(LEFT_PAREN)) {
+            expr = finish_call(std::move(expr));
+        } else {
+            break;
+        }
+    }
+
+    return expr;
 }
 
 std::shared_ptr<Expr> Parser::primary() {
@@ -312,6 +349,24 @@ std::shared_ptr<Expr> Parser::primary() {
         throw parse_error(peek(), "Expect expression");
     }
     return expr;
+}
+
+std::shared_ptr<Expr> Parser::finish_call(std::shared_ptr<Expr> callee) {
+    std::vector<std::shared_ptr<Expr>> arguments;
+    if (!check(RIGHT_PAREN)) {
+        do {
+            if (arguments.size() > 255) {
+                report_parse_error(peek(),
+                                   "Can't have more than 255 arguments.");
+            }
+            arguments.push_back(expression());
+        } while (match(COMMA));
+    }
+
+    Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+
+    return make_shared<Expr::Call>(std::move(callee), paren,
+                                   std::move(arguments));
 }
 
 Parser::ParseError::ParseError(const std::string &what)

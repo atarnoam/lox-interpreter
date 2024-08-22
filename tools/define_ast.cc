@@ -256,6 +256,8 @@ int main(int argc, char **argv) {
                           {
                               "Assign   : Token name, Expr value",
                               "Binary   : Expr left, Token op, Expr right",
+                              "Call     : Expr callee, Token paren, "
+                              "std::vector<std::shared_ptr<Expr>> arguments",
                               "Grouping : Expr expression",
                               "Literal  : Token value",
                               "Logical  : Expr left, Token op, Expr right",
@@ -264,6 +266,7 @@ int main(int argc, char **argv) {
                           },
                           {
                               "\"src/syntactics/token.h\"",
+                              "<vector>",
                           });
 
     define_and_format_ast(
@@ -272,7 +275,9 @@ int main(int argc, char **argv) {
             "Block      : std::vector<std::shared_ptr<Stmt>> statements",
             "Expression : std::shared_ptr<Expr> expression",
             "If         : std::shared_ptr<Expr> condition, Stmt then_branch,"
-            "Stmt else_branch",
+            "   Stmt else_branch",
+            "Function   : Token name, std::vector<Token> params, "
+            "std::vector<std::shared_ptr<Stmt>> body",
             "Print      : std::shared_ptr<Expr> expression",
             "Var        : Token name, std::shared_ptr<Expr> initializer",
             "While      : std::shared_ptr<Expr> condition, Stmt body",

@@ -1,6 +1,7 @@
 #pragma once
 #include "src/syntactics/token.h"
 #include <memory>
+#include <vector>
 
 struct ExprVisitor;
 
@@ -17,6 +18,7 @@ struct Expr {
 
     struct Assign;
     struct Binary;
+    struct Call;
     struct Grouping;
     struct Literal;
     struct Logical;
@@ -37,6 +39,15 @@ struct Expr::Binary : Expr {
     std::shared_ptr<Expr> left;
     Token op;
     std::shared_ptr<Expr> right;
+};
+
+struct Expr::Call : Expr {
+    Call(std::shared_ptr<Expr> callee, Token paren,
+         std::vector<std::shared_ptr<Expr>> arguments);
+    virtual void accept(ExprVisitor &visitor) const override;
+    std::shared_ptr<Expr> callee;
+    Token paren;
+    std::vector<std::shared_ptr<Expr>> arguments;
 };
 
 struct Expr::Grouping : Expr {
@@ -75,6 +86,7 @@ struct Expr::Variable : Expr {
 struct ExprVisitor {
     virtual void visit_assign_expr(const Expr::Assign &) = 0;
     virtual void visit_binary_expr(const Expr::Binary &) = 0;
+    virtual void visit_call_expr(const Expr::Call &) = 0;
     virtual void visit_grouping_expr(const Expr::Grouping &) = 0;
     virtual void visit_literal_expr(const Expr::Literal &) = 0;
     virtual void visit_logical_expr(const Expr::Logical &) = 0;
