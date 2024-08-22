@@ -42,6 +42,15 @@ cc_library(
 )
 
 cc_library(
+    name = "return",
+    srcs = ["return.cc"],
+    hdrs = ["return.h"],
+    deps = [
+        ":lox_object",
+    ],
+)
+
+cc_library(
     name = "abstract_interpreter",
     srcs = ["abstract_interpreter.cc"],
     hdrs = ["abstract_interpreter.h"],
@@ -61,6 +70,7 @@ cc_library(
         ":lox_function",
         ":lox_object",
         ":natives",
+        ":return",
         ":runtime_error",
         "//src:logging",
         "//src:tp_utils",
@@ -114,5 +124,6 @@ cc_library(
         ":lox_callable",
         ":lox_object",
         ":print_lox_object",
+        ":return",
     ],
 )

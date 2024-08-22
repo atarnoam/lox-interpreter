@@ -4,6 +4,7 @@
 #include "src/logging.h"
 #include "src/semantics/lox_function.h"
 #include "src/semantics/natives.h"
+#include "src/semantics/return.h"
 #include "src/tp_utils.h"
 
 Interpreter::Interpreter()
@@ -234,6 +235,15 @@ void Interpreter::visit_if_stmt(const Stmt::If &stmt) {
 void Interpreter::visit_print_stmt(const Stmt::Print &print) {
     evaluate(print.expression);
     print_expr_result();
+}
+
+void Interpreter::visit_return_stmt(const Stmt::Return &stmt) {
+    LoxObject value;
+    if (stmt.value != nullptr) {
+        value = evaluate(stmt.value);
+    }
+
+    throw Return(value);
 }
 
 void Interpreter::visit_var_stmt(const Stmt::Var &var) {

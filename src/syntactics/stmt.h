@@ -21,6 +21,7 @@ struct Stmt {
     struct If;
     struct Function;
     struct Print;
+    struct Return;
     struct Var;
     struct While;
 };
@@ -61,6 +62,13 @@ struct Stmt::Print : Stmt {
     std::shared_ptr<Expr> expression;
 };
 
+struct Stmt::Return : Stmt {
+    Return(Token keyword, std::shared_ptr<Expr> value);
+    virtual void accept(StmtVisitor &visitor) const override;
+    Token keyword;
+    std::shared_ptr<Expr> value;
+};
+
 struct Stmt::Var : Stmt {
     Var(Token name, std::shared_ptr<Expr> initializer);
     virtual void accept(StmtVisitor &visitor) const override;
@@ -81,6 +89,7 @@ struct StmtVisitor {
     virtual void visit_if_stmt(const Stmt::If &) = 0;
     virtual void visit_function_stmt(const Stmt::Function &) = 0;
     virtual void visit_print_stmt(const Stmt::Print &) = 0;
+    virtual void visit_return_stmt(const Stmt::Return &) = 0;
     virtual void visit_var_stmt(const Stmt::Var &) = 0;
     virtual void visit_while_stmt(const Stmt::While &) = 0;
 };

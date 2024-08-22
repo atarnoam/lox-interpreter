@@ -81,7 +81,9 @@ std::shared_ptr<Stmt> Parser::statement() {
     if (match(FOR)) {
         return for_statement();
     }
-
+    if (match(RETURN)) {
+        return return_statement();
+    }
     if (match(PRINT)) {
         return print_statement();
     }
@@ -181,6 +183,17 @@ std::shared_ptr<Stmt> Parser::print_statement() {
     auto expr = expression();
     consume(SEMICOLON, "Expect ; after value.");
     return make_shared<Stmt::Print>(std::move(expr));
+}
+
+std::shared_ptr<Stmt> Parser::return_statement() {
+    Token keyword = previous();
+    std::shared_ptr<Expr> value = nullptr;
+    if (!check(SEMICOLON)) {
+        value = expression();
+    }
+
+    consume(SEMICOLON, "Expect ';' after return value.");
+    return std::make_shared<Stmt::Return>(keyword, std::move(value));
 }
 
 std::shared_ptr<Stmt> Parser::expression_statement() {

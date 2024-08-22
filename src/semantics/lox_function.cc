@@ -4,6 +4,7 @@
 #include "src/semantics/abstract_interpreter.h"
 #include "src/semantics/environment.h"
 #include "src/semantics/lox_object.h"
+#include "src/semantics/return.h"
 
 LoxFunction::LoxFunction(std::shared_ptr<Stmt::Function> declaration)
     : declaration(std::move(declaration)) {}
@@ -21,8 +22,13 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
     for (size_t i = 0; i < declaration->params.size(); ++i) {
         environment->define(declaration->params[i].lexeme, arguments[i]);
     }
-    interpreter.execute_block(declaration->body, environment);
-    return LoxObject();
+
+    try {
+        interpreter.execute_block(declaration->body, environment);
+    } catch (const Return &return_value) {
+        return return_value.return_value;
+    }
+    return LoxObject{};
 }
 
 int LoxFunction::arity() const { return declaration->params.size(); }

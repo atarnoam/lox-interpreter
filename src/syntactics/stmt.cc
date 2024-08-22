@@ -38,6 +38,13 @@ void Stmt::Print::accept(StmtVisitor &visitor) const {
     visitor.visit_print_stmt(*this);
 }
 
+Stmt::Return::Return(Token keyword, std::shared_ptr<Expr> value)
+    : keyword(std::move(keyword)), value(std::move(value)) {}
+
+void Stmt::Return::accept(StmtVisitor &visitor) const {
+    visitor.visit_return_stmt(*this);
+}
+
 Stmt::Var::Var(Token name, std::shared_ptr<Expr> initializer)
     : name(std::move(name)), initializer(std::move(initializer)) {}
 

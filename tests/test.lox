@@ -1,4 +1,6 @@
-fun f() {
+fun f(x) {
+    print x + 1;
 }
 
 print f;
+f(1);
