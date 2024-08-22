@@ -23,9 +23,11 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
         environment->define(declaration->params[i].lexeme, arguments[i]);
     }
 
+    auto previous_environment = interpreter.curr_environment;
     try {
         interpreter.execute_block(declaration->body, environment);
     } catch (const Return &return_value) {
+        interpreter.curr_environment = previous_environment;
         return return_value.return_value;
     }
     return LoxObject{};
