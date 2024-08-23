@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/semantics/lox_callable.fwd.h"
+#include "src/semantics/object/lox_callable.fwd.h"
 #include "src/syntactics/token.h"
 #include "src/tp_utils.h"
 

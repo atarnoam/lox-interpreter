@@ -1,6 +1,6 @@
 #include "src/semantics/natives.h"
 
-#include "src/semantics/lox_object.h"
+#include "src/semantics/object/lox_object.h"
 #include <chrono>
 
 const std::vector<std::pair<std::string, LoxObject>> natives{

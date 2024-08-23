@@ -1,7 +1,7 @@
 #pragma once
 
 #include "src/semantics/abstract_interpreter.h"
-#include "src/semantics/lox_callable.fwd.h"
+#include "src/semantics/object/lox_callable.fwd.h"
 
 #include <memory>
 #include <vector>

@@ -2,8 +2,8 @@
 
 #include "interpreter.h"
 #include "src/logging.h"
-#include "src/semantics/lox_function.h"
 #include "src/semantics/natives.h"
+#include "src/semantics/object/lox_function.h"
 #include "src/semantics/return.h"
 #include "src/tp_utils.h"
 

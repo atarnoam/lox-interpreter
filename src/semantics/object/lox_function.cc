@@ -1,9 +1,8 @@
-#include "src/semantics/lox_function.h"
-
 #include "lox_function.h"
+
 #include "src/semantics/abstract_interpreter.h"
 #include "src/semantics/environment.h"
-#include "src/semantics/lox_object.h"
+#include "src/semantics/object/lox_object.h"
 #include "src/semantics/return.h"
 
 LoxFunction::LoxFunction(std::shared_ptr<Stmt::Function> declaration,

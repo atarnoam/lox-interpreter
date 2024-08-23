@@ -5,19 +5,7 @@ cc_library(
     srcs = ["runtime_error.cc"],
     hdrs = ["runtime_error.h"],
     deps = [
-        ":lox_object",
-    ],
-)
-
-cc_library(
-    name = "lox_object",
-    srcs = ["lox_object.cc"],
-    hdrs = ["lox_object.h"],
-    deps = [
-        ":lox_callable_fwd",
-        "//src:tp_utils",
-        "//src/syntactics:expr",
-        "//src/syntactics:token",
+        "//src/semantics/object:lox_object",
     ],
 )
 
@@ -26,18 +14,8 @@ cc_library(
     srcs = ["environment.cc"],
     hdrs = ["environment.h"],
     deps = [
-        ":lox_object",
         ":runtime_error",
-    ],
-)
-
-cc_library(
-    name = "interpreter_function",
-    srcs = ["interpreter_function.cc"],
-    hdrs = ["interpreter_function.h"],
-    deps = [
-        ":interpreter",
-        ":lox_function",
+        "//src/semantics/object:lox_object",
     ],
 )
 
@@ -46,7 +24,7 @@ cc_library(
     srcs = ["return.cc"],
     hdrs = ["return.h"],
     deps = [
-        ":lox_object",
+        "//src/semantics/object:lox_object",
     ],
 )
 
@@ -66,41 +44,17 @@ cc_library(
     hdrs = ["interpreter.h"],
     deps = [
         ":environment",
-        ":lox_callable",
-        ":lox_function",
-        ":lox_object",
         ":natives",
         ":return",
         ":runtime_error",
         "//src:logging",
         "//src:tp_utils",
+        "//src/semantics/object:lox_callable",
+        "//src/semantics/object:lox_function",
+        "//src/semantics/object:lox_object",
+        "//src/semantics/object:print_lox_object",
         "//src/syntactics:expr",
         "//src/syntactics:stmt",
-    ],
-)
-
-cc_library(
-    name = "lox_callable_fwd",
-    hdrs = ["lox_callable.fwd.h"],
-)
-
-cc_library(
-    name = "lox_callable",
-    srcs = ["lox_callable.cc"],
-    hdrs = ["lox_callable.h"],
-    deps = [
-        ":abstract_interpreter",
-        ":lox_callable_fwd",
-    ],
-)
-
-cc_library(
-    name = "print_lox_object",
-    srcs = ["print_lox_object.cc"],
-    hdrs = ["print_lox_object.h"],
-    deps = [
-        ":lox_callable",
-        ":lox_object",
     ],
 )
 
@@ -109,21 +63,7 @@ cc_library(
     srcs = ["natives.cc"],
     hdrs = ["natives.h"],
     deps = [
-        ":lox_callable",
-        ":lox_object",
-    ],
-)
-
-cc_library(
-    name = "lox_function",
-    srcs = ["lox_function.cc"],
-    hdrs = ["lox_function.h"],
-    deps = [
-        ":abstract_interpreter",
-        ":environment",
-        ":lox_callable",
-        ":lox_object",
-        ":print_lox_object",
-        ":return",
+        "//src/semantics/object:lox_callable",
+        "//src/semantics/object:lox_object",
     ],
 )

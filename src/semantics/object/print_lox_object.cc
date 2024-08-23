@@ -1,5 +1,6 @@
-#include "src/semantics/print_lox_object.h"
-#include "src/semantics/lox_callable.h"
+#include "print_lox_object.h"
+
+#include "src/semantics/object/lox_callable.h"
 
 std::ostream &operator<<(std::ostream &os, const LoxObject &lox_object) {
     return std::visit(

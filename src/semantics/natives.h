@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/semantics/lox_callable.h"
+#include "src/semantics/object/lox_callable.h"
 #include <memory>
 #include <string>
 #include <utility>

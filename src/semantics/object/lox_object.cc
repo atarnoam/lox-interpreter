@@ -1,6 +1,5 @@
-#include "src/semantics/lox_object.h"
 #include "lox_object.h"
-// #include "src/semantics/print_lox_callable.h"
+
 #include "src/tp_utils.h"
 
 LoxNull::operator bool() const { return false; }

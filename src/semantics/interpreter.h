@@ -2,9 +2,9 @@
 
 #include "src/semantics/abstract_interpreter.h"
 #include "src/semantics/environment.h"
-#include "src/semantics/lox_callable.h"
-#include "src/semantics/lox_object.h"
-#include "src/semantics/print_lox_object.h"
+#include "src/semantics/object/lox_callable.h"
+#include "src/semantics/object/lox_object.h"
+#include "src/semantics/object/print_lox_object.h"
 #include "src/semantics/runtime_error.h"
 #include "src/syntactics/expr.h"
 #include "src/syntactics/stmt.h"
