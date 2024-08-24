@@ -1,14 +1,10 @@
-fun make_counter() {
-    var i = 0;
-    fun count() {
-        i = i + 1;
-        return i;
-    }
- 
-    return count;
-}
+var a = "global";
+{
+  fun showA() {
+    print a;
+  }
 
-// var counter = make_counter();
-// print counter();
-// print counter();
-// print counter();
+  showA();
+  var a = "block";
+  showA();
+}

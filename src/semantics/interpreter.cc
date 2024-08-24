@@ -194,7 +194,7 @@ void Interpreter::visit_call_expr(const Expr::Call &expr) {
 }
 
 void Interpreter::visit_variable_expr(const Expr::Variable &variable) {
-    expr_result = curr_environment->get(variable.name);
+    expr_result = lookup_variable(variable.name, &variable);
 }
 
 void Interpreter::check_numeric_op(const Token &op, const LoxObject &operand) {
