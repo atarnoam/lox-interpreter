@@ -52,7 +52,13 @@ void Interpreter::reset_runtime_error() { m_had_runtime_error = false; }
 
 void Interpreter::visit_assign_expr(const Expr::Assign &assign) {
     LoxObject value = evaluate(assign.value);
-    curr_environment->assign(assign.name, value);
+
+    if (locals.contains(&assign)) {
+        int distance = locals[&assign];
+        curr_environment->assign_at(assign.name, value, distance);
+    } else {
+        globals()->assign(assign.name, value);
+    }
     expr_result = value;
 }
 
@@ -206,6 +212,14 @@ void Interpreter::check_numeric_op(const Token &op, const LoxObject &left,
     throw RuntimeError(op, "Operands must be numbers.");
 }
 
+LoxObject Interpreter::lookup_variable(const Token &name, const Expr *expr) {
+    if (!locals.contains(expr)) {
+        return globals()->get(name);
+    }
+    int distance = locals.at(expr);
+    return curr_environment->get_at(name, distance);
+}
+
 void Interpreter::print_expr_result() {
     std::cout << std::boolalpha << expr_result << std::endl;
 }
@@ -221,8 +235,9 @@ void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
 }
 
 void Interpreter::visit_function_stmt(const Stmt::Function &func) {
-    auto function = std::make_shared<LoxFunction>(func, curr_environment);
-    curr_environment->define(func.name.lexeme, std::move(function));
+    auto function_object =
+        std::make_shared<LoxFunction>(func, curr_environment);
+    curr_environment->define(func.name.lexeme, std::move(function_object));
 }
 
 void Interpreter::visit_if_stmt(const Stmt::If &stmt) {

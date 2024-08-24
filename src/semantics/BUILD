@@ -77,3 +77,15 @@ cc_library(
         "//src/semantics/object:lox_object",
     ],
 )
+
+cc_library(
+    name = "resolver",
+    srcs = ["resolver.cc"],
+    hdrs = ["resolver.h"],
+    deps = [
+        "//src:logging",
+        "//src/semantics:abstract_interpreter",
+        "//src/syntactics:expr",
+        "//src/syntactics:stmt",
+    ],
+)

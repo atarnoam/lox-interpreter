@@ -1,7 +1,7 @@
 #include "abstract_interpreter.h"
 
 AbstractInterpreter::AbstractInterpreter()
-    : environments(), curr_environment(&environments.globals()) {}
+    : environments(), curr_environment(&environments.globals()), locals() {}
 
 void AbstractInterpreter::execute(const std::shared_ptr<Stmt> &stmt) {
     return execute(stmt.get());
@@ -18,3 +18,7 @@ void AbstractInterpreter::execute_block(
 }
 
 Environment *AbstractInterpreter::globals() { return &environments.globals(); }
+
+void AbstractInterpreter::resolve(const Expr *expr, int depth) {
+    locals[expr] = depth;
+}

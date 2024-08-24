@@ -420,9 +420,5 @@ void Parser::synchronize() {
 std::string Parser::report_parse_error(const Token &token,
                                        const std::string &message) {
     m_had_error = true;
-    if (token.type == END_OF_FILE) {
-        return report(token.line, "at end", message);
-    } else {
-        return report(token.line, "at '" + token.lexeme + "'", message);
-    }
+    return report_token_error(token, message);
 }

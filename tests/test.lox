@@ -4,11 +4,11 @@ fun make_counter() {
         i = i + 1;
         return i;
     }
-
+ 
     return count;
 }
 
-var counter = make_counter();
-print counter();
-print counter();
-print counter();
+// var counter = make_counter();
+// print counter();
+// print counter();
+// print counter();

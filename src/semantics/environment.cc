@@ -7,7 +7,7 @@ Environment::Environment(Environment *enclosing)
 
 Environment::Environment() : enclosing(nullptr), values() {}
 
-void Environment::define(const std::string &name, const LoxObject &value) {
+void Environment::define(const VarName &name, const LoxObject &value) {
     values[name] = value;
 }
 
@@ -36,14 +36,31 @@ LoxObject &Environment::get(const Token &name) {
     throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
+void Environment::assign_at(const Token &name, const LoxObject &value,
+                            int distance) {
+    ancestor(distance)->assign(name, value);
+}
+
+LoxObject &Environment::get_at(const Token &name, int distance) {
+    return ancestor(distance)->get(name);
+}
+
+Environment *Environment::ancestor(int distance) {
+    Environment *environment = this;
+    for (int i = 0; i < distance; ++i) {
+        environment = environment->enclosing;
+    }
+    return environment;
+}
+
 EnvironmentTree::EnvironmentTree() : environments(), m_globals(nullptr) {
     environments.emplace_back(std::make_unique<Environment>());
     m_globals = environments.front().get();
 }
 
+Environment &EnvironmentTree::globals() { return *m_globals; }
+
 Environment *EnvironmentTree::add_environment(Environment *enclosing) {
     return environments.emplace_back(std::make_unique<Environment>(enclosing))
         .get();
 }
-
-Environment &EnvironmentTree::globals() { return *m_globals; }

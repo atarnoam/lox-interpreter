@@ -2,6 +2,7 @@
 #include "src/semantics/interpreter.h"
 #include "src/semantics/object/lox_callable.h"
 #include "src/semantics/object/lox_function.h"
+#include "src/semantics/resolver.h"
 #include "src/syntactics/expr.h"
 #include "src/syntactics/parser.h"
 #include "src/syntactics/scanner.h"
@@ -28,17 +29,26 @@ parse_stream(std::istream &&is) {
     if (parser.had_error()) {
         return std::nullopt;
     }
+
     return stmts;
 }
 
 int interpret_stream(Interpreter &interpreter, std::istream &&is,
                      InterpreterMode mode) {
-    auto stmts = parse_stream(std::move(is));
-    if (!stmts.has_value()) {
+    auto stmts_opt = parse_stream(std::move(is));
+    if (!stmts_opt.has_value()) {
         return 65;
     }
 
-    interpreter.interpret(stmts.value(), mode);
+    auto stmts = stmts_opt.value();
+    Resolver resolver{interpreter};
+    resolver.resolve(stmts);
+
+    if (resolver.had_error()) {
+        return 66;
+    }
+
+    interpreter.interpret(stmts, mode);
     if (interpreter.had_runtime_error()) {
         return 70;
     }

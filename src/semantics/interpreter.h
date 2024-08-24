@@ -61,6 +61,8 @@ struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
     static void check_numeric_op(const Token &op, const LoxObject &left,
                                  const LoxObject &right);
 
+    LoxObject lookup_variable(const Token &name, const Expr *expr);
+
     void print_expr_result();
 
     LoxObject expr_result;
