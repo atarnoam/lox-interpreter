@@ -38,9 +38,6 @@ struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
     bool had_runtime_error() const;
     void reset_runtime_error();
 
-    friend void _visit_function_stmt(Interpreter &interpreter,
-                                     const Stmt::Function &func);
-
   private:
     void visit_assign_expr(const Expr::Assign &assign) override;
     void visit_binary_expr(const Expr::Binary &binary) override;

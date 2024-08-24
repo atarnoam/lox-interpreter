@@ -2,10 +2,10 @@
 #include "src/semantics/environment.h"
 #include "src/semantics/runtime_error.h"
 
-Environment::Environment() : enclosing(nullptr), values() {}
+Environment::Environment(Environment *enclosing)
+    : enclosing(enclosing), values() {}
 
-Environment::Environment(std::shared_ptr<Environment> enclosing)
-    : enclosing(std::move(enclosing)), values() {}
+Environment::Environment() : enclosing(nullptr), values() {}
 
 void Environment::define(const std::string &name, const LoxObject &value) {
     values[name] = value;
@@ -25,18 +25,25 @@ void Environment::assign(const Token &name, const LoxObject &value) {
     throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
-const LoxObject &Environment::get(const Token &name) const {
+LoxObject &Environment::get(const Token &name) {
     if (values.contains(name.lexeme)) {
         return values.at(name.lexeme);
     }
 
-    if (enclosing) {
+    if (enclosing != nullptr) {
         return enclosing->get(name);
     }
     throw RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
 }
 
-LoxObject &Environment::get(const Token &name) {
-    return const_cast<LoxObject &>(
-        const_cast<const Environment *>(this)->get(name));
+EnvironmentTree::EnvironmentTree() : environments(), m_globals(nullptr) {
+    environments.emplace_back(std::make_unique<Environment>());
+    m_globals = environments.front().get();
 }
+
+Environment *EnvironmentTree::add_environment(Environment *enclosing) {
+    return environments.emplace_back(std::make_unique<Environment>(enclosing))
+        .get();
+}
+
+Environment &EnvironmentTree::globals() { return *m_globals; }

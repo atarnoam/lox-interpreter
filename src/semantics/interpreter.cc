@@ -10,8 +10,9 @@
 Interpreter::Interpreter()
     : AbstractInterpreter(), expr_result(LoxNull{}),
       m_had_runtime_error(false) {
+    Environment *global_environment = globals();
     for (const auto &[name, obj] : natives) {
-        globals->define(name, obj);
+        global_environment->define(name, obj);
     }
 }
 
@@ -42,7 +43,7 @@ void Interpreter::interpret(const std::vector<std::shared_ptr<Stmt>> &stmts,
     } catch (const RuntimeError &err) {
         error(err.token.line, err.what());
         m_had_runtime_error = true;
-        curr_environment = globals;
+        curr_environment = globals();
     }
 }
 
@@ -210,8 +211,9 @@ void Interpreter::print_expr_result() {
 }
 
 void Interpreter::visit_block_stmt(const Stmt::Block &block) {
-    execute_block(block.statements,
-                  std::make_shared<Environment>(curr_environment));
+    Environment *new_environment =
+        environments.add_environment(curr_environment);
+    execute_block(block.statements, new_environment);
 }
 
 void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
@@ -220,7 +222,7 @@ void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {
 
 void Interpreter::visit_function_stmt(const Stmt::Function &func) {
     auto function = std::make_shared<LoxFunction>(func, curr_environment);
-    curr_environment->define(func.name.lexeme, function);
+    curr_environment->define(func.name.lexeme, std::move(function));
 }
 
 void Interpreter::visit_if_stmt(const Stmt::If &stmt) {

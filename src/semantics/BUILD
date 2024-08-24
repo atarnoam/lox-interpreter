@@ -19,6 +19,16 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "environment_test",
+    srcs = ["environment_test.cc"],
+    deps = [
+        ":environment",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "return",
     srcs = ["return.cc"],
