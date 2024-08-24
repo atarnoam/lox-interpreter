@@ -22,7 +22,7 @@ LoxObject ClockFun::call(AbstractInterpreter &interpreter,
     return seconds_since_epoch;
 }
 
-int ClockFun::arity() const { return 0; }
+size_t ClockFun::arity() const { return 0; }
 
 std::string ToStringFun::to_string() const { return "<native fn>"; }
 
@@ -32,4 +32,4 @@ LoxObject ToStringFun::call(AbstractInterpreter &interpreter,
     ss << arguments[0];
     return ss.str();
 }
-int ToStringFun::arity() const { return 1; }
+size_t ToStringFun::arity() const { return 1; }

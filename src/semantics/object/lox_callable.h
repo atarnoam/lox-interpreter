@@ -14,5 +14,5 @@ struct LoxCallable {
     virtual std::string to_string() const = 0;
     virtual LoxObject call(AbstractInterpreter &interpreter,
                            const std::vector<LoxObject> &arguments) = 0;
-    virtual int arity() const = 0;
+    virtual size_t arity() const = 0;
 };

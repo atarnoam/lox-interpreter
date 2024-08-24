@@ -12,7 +12,7 @@ struct ClockFun final : LoxCallable {
     LoxObject call(AbstractInterpreter &interpreter,
                    const std::vector<LoxObject> &arguments) override;
 
-    int arity() const override;
+    size_t arity() const override;
 };
 
 struct ToStringFun final : LoxCallable {
@@ -20,5 +20,5 @@ struct ToStringFun final : LoxCallable {
     LoxObject call(AbstractInterpreter &interpreter,
                    const std::vector<LoxObject> &arguments) override;
 
-    int arity() const override;
+    size_t arity() const override;
 };

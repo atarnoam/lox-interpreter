@@ -13,7 +13,7 @@ struct LoxFunction final : LoxCallable {
     std::string to_string() const override;
     LoxObject call(AbstractInterpreter &interpreter,
                    const std::vector<LoxObject> &arguments) override;
-    int arity() const;
+    size_t arity() const;
 
   private:
     // If named, this is the name of the function. Otherwise, it is the keyword

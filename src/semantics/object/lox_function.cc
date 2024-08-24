@@ -46,4 +46,4 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
     return LoxObject{};
 }
 
-int LoxFunction::arity() const { return params.size(); }
+size_t LoxFunction::arity() const { return params.size(); }
