@@ -50,6 +50,7 @@ struct Resolver : ExprVisitor, StmtVisitor {
     void visit_variable_expr(const Expr::Variable &) override;
 
     void visit_block_stmt(const Stmt::Block &) override;
+    void visit_class_stmt(const Stmt::Class &) override;
     void visit_expression_stmt(const Stmt::Expression &) override;
     void visit_if_stmt(const Stmt::If &) override;
     void visit_function_stmt(const Stmt::Function &) override;

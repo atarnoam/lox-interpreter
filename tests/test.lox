@@ -5,5 +5,12 @@ fun twice(f) {
   return do_twice;
 }
 
+class A {
+  f(x) {
+    return x;
+  }
+}
+
 var g = twice(fun() {print "Hello!";});
 g();
+print A;

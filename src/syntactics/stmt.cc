@@ -7,6 +7,14 @@ void Stmt::Block::accept(StmtVisitor &visitor) const {
     visitor.visit_block_stmt(*this);
 }
 
+Stmt::Class::Class(Token name,
+                   std::vector<std::shared_ptr<Stmt::Function>> methods)
+    : name(std::move(name)), methods(std::move(methods)) {}
+
+void Stmt::Class::accept(StmtVisitor &visitor) const {
+    visitor.visit_class_stmt(*this);
+}
+
 Stmt::Expression::Expression(std::shared_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

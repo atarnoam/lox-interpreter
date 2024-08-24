@@ -40,6 +40,7 @@ struct Parser {
 
     std::shared_ptr<Stmt> declaration();
     std::shared_ptr<Stmt> var_declaration();
+    std::shared_ptr<Stmt> class_declaration();
     std::shared_ptr<Stmt> function(const std::string &kind);
     std::shared_ptr<Stmt> statement();
     std::vector<std::shared_ptr<Stmt>> block_stmt_list();

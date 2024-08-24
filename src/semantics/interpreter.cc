@@ -3,6 +3,7 @@
 #include "interpreter.h"
 #include "src/logging.h"
 #include "src/semantics/natives.h"
+#include "src/semantics/object/lox_class.h"
 #include "src/semantics/object/lox_function.h"
 #include "src/semantics/return.h"
 #include "src/tp_utils.h"
@@ -242,6 +243,13 @@ void Interpreter::visit_block_stmt(const Stmt::Block &block) {
     Environment *new_environment =
         environments.add_environment(curr_environment);
     execute_block(block.statements, new_environment);
+}
+
+void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
+    curr_environment->define(stmt.name.lexeme, LoxNull{});
+    std::shared_ptr<LoxCallable> lox_class =
+        std::make_shared<LoxClass>(stmt.name.lexeme);
+    curr_environment->assign(stmt.name, lox_class);
 }
 
 void Interpreter::visit_expression_stmt(const Stmt::Expression &expression) {

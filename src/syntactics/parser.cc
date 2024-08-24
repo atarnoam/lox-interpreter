@@ -52,6 +52,9 @@ const Token &Parser::consume(TokenType type, const std::string &message) {
 
 std::shared_ptr<Stmt> Parser::declaration() {
     try {
+        if (match(CLASS)) {
+            return class_declaration();
+        }
         if (match(VAR)) {
             return var_declaration();
         }
@@ -81,6 +84,21 @@ std::shared_ptr<Stmt> Parser::var_declaration() {
 
     consume(SEMICOLON, "Expect ';' after variable declaration.");
     return make_shared<Stmt::Var>(name, std::move(initializer));
+}
+
+std::shared_ptr<Stmt> Parser::class_declaration() {
+    Token name = consume(IDENTIFIER, "Expect class name.");
+    consume(LEFT_BRACE, "Expect '{' before class body.");
+
+    std::vector<std::shared_ptr<Stmt::Function>> methods;
+    while (!check(RIGHT_BRACE) && !is_at_end()) {
+        methods.emplace_back(
+            std::static_pointer_cast<Stmt::Function>(function("method")));
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after class body.");
+
+    return std::make_shared<Stmt::Class>(name, std::move(methods));
 }
 
 std::shared_ptr<Stmt> Parser::statement() {

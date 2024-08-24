@@ -49,3 +49,15 @@ cc_library(
         "//src/semantics:return",
     ],
 )
+
+cc_library(
+    name = "lox_class",
+    srcs = ["lox_class.cc"],
+    hdrs = ["lox_class.h"],
+    deps = [
+        ":lox_callable",
+        ":lox_object",
+        "//src/semantics:abstract_interpreter",
+        "//src/semantics:environment",
+    ],
+)

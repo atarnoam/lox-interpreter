@@ -18,6 +18,7 @@ struct Stmt {
     virtual ~Stmt() = default;
 
     struct Block;
+    struct Class;
     struct Expression;
     struct If;
     struct Function;
@@ -31,6 +32,13 @@ struct Stmt::Block : Stmt {
     Block(std::vector<std::shared_ptr<Stmt>> statements);
     virtual void accept(StmtVisitor &visitor) const override;
     std::vector<std::shared_ptr<Stmt>> statements;
+};
+
+struct Stmt::Class : Stmt {
+    Class(Token name, std::vector<std::shared_ptr<Stmt::Function>> methods);
+    virtual void accept(StmtVisitor &visitor) const override;
+    Token name;
+    std::vector<std::shared_ptr<Stmt::Function>> methods;
 };
 
 struct Stmt::Expression : Stmt {
@@ -86,6 +94,7 @@ struct Stmt::While : Stmt {
 
 struct StmtVisitor {
     virtual void visit_block_stmt(const Stmt::Block &) = 0;
+    virtual void visit_class_stmt(const Stmt::Class &) = 0;
     virtual void visit_expression_stmt(const Stmt::Expression &) = 0;
     virtual void visit_if_stmt(const Stmt::If &) = 0;
     virtual void visit_function_stmt(const Stmt::Function &) = 0;

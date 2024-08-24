@@ -50,6 +50,7 @@ struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
     void visit_variable_expr(const Expr::Variable &variable) override;
 
     void visit_block_stmt(const Stmt::Block &block) override;
+    void visit_class_stmt(const Stmt::Class &stmt) override;
     void visit_expression_stmt(const Stmt::Expression &expression) override;
     void visit_function_stmt(const Stmt::Function &) override;
     void visit_if_stmt(const Stmt::If &stmt);

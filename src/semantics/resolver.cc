@@ -82,6 +82,11 @@ void Resolver::visit_expression_stmt(const Stmt::Expression &stmt) {
     resolve(stmt.expression);
 }
 
+void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
+    declare(stmt.name);
+    define(stmt.name);
+}
+
 void Resolver::visit_if_stmt(const Stmt::If &stmt) {
     resolve(stmt.condition);
     resolve(stmt.then_branch);
