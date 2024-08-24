@@ -47,6 +47,10 @@ void Resolver::visit_grouping_expr(const Expr::Grouping &expr) {
     resolve(expr.expression);
 }
 
+void Resolver::visit_lambda_expr(const Expr::Lambda &expr) {
+    resolve_function(expr.params, expr.body, FunctionType::FUNCTION);
+}
+
 void Resolver::visit_literal_expr(const Expr::Literal &expr) { return; }
 
 void Resolver::visit_logical_expr(const Expr::Logical &expr) {
@@ -88,7 +92,7 @@ void Resolver::visit_function_stmt(const Stmt::Function &stmt) {
     declare(stmt.name);
     define(stmt.name);
 
-    resolve_function(stmt, FunctionType::FUNCTION);
+    resolve_function(stmt.params, stmt.body, FunctionType::FUNCTION);
 }
 
 void Resolver::visit_print_stmt(const Stmt::Print &stmt) {
@@ -153,17 +157,18 @@ void Resolver::resolve_local(const Expr &expr, const Token &token) {
     }
 }
 
-void Resolver::resolve_function(const Stmt::Function &function,
+void Resolver::resolve_function(const std::vector<Token> &params,
+                                const std::vector<std::shared_ptr<Stmt>> &body,
                                 FunctionType type) {
     FunctionType enclosing_function = current_function;
     current_function = type;
 
     begin_scope();
-    for (const Token &param : function.params) {
+    for (const Token &param : params) {
         declare(param);
         define(param);
     }
-    resolve(function.body);
+    resolve(body);
     end_scope();
 
     current_function = enclosing_function;

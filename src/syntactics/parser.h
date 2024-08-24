@@ -33,6 +33,7 @@ struct Parser {
     }
     bool check(TokenType token_type) const;
     const Token &peek() const;
+    const Token &peek_next() const;
     const Token &previous() const;
     const Token &advance();
     const Token &consume(TokenType type, const std::string &message);
@@ -61,6 +62,8 @@ struct Parser {
     std::shared_ptr<Expr> call();
     std::shared_ptr<Expr> primary();
 
+    std::pair<std::vector<Token>, std::vector<std::shared_ptr<Stmt>>>
+    finish_function(const std::string &kind);
     std::shared_ptr<Expr> finish_call(std::shared_ptr<Expr> callee);
 
     std::string report_parse_error(const Token &token,

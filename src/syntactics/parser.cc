@@ -22,6 +22,12 @@ bool Parser::is_at_end() const { return peek().type == END_OF_FILE; }
 
 const Token &Parser::peek() const { return tokens[curr]; }
 
+const Token &Parser::peek_next() const {
+    if (curr + 1 >= tokens.size())
+        return tokens[curr];
+    return tokens[curr + 1];
+}
+
 const Token &Parser::previous() const {
     return tokens[curr == 0 ? curr : curr - 1];
 }
@@ -49,8 +55,14 @@ std::shared_ptr<Stmt> Parser::declaration() {
         if (match(VAR)) {
             return var_declaration();
         }
-        if (match(FUN)) {
-            return function("function");
+        if (peek().type == FUN) {
+            if (peek_next().type == LEFT_PAREN) {
+                // lambda function
+                return expression_statement();
+            } else {
+                advance();
+                return function("function");
+            }
         }
 
         return statement();
@@ -206,21 +218,7 @@ std::shared_ptr<Expr> Parser::expression() { return assignment(); }
 
 std::shared_ptr<Stmt> Parser::function(const std::string &kind) {
     Token name = consume(IDENTIFIER, "Expect " + kind + " name.");
-    consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
-    std::vector<Token> parameters;
-    if (!check(RIGHT_PAREN)) {
-        do {
-            if (parameters.size() >= 255) {
-                report_parse_error(peek(),
-                                   "Can't have more than 255 parameters.");
-            }
-
-            parameters.push_back(consume(IDENTIFIER, "Expect parameter name."));
-        } while (match(COMMA));
-    }
-    consume(RIGHT_PAREN, "Expect ')' after parameters.");
-    consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
-    auto body = block_stmt_list();
+    auto [parameters, body] = finish_function(kind);
     return std::make_shared<Stmt::Function>(name, parameters, std::move(body));
 }
 
@@ -358,10 +356,34 @@ std::shared_ptr<Expr> Parser::primary() {
     case IDENTIFIER:
         expr = std::make_shared<Expr::Variable>(token);
         break;
+    case FUN: {
+        auto [parameters, body] = finish_function("lambda");
+        expr = std::make_shared<Expr::Lambda>(token, parameters, body);
+    } break;
     default:
         throw parse_error(peek(), "Expect expression");
     }
     return expr;
+}
+
+std::pair<std::vector<Token>, std::vector<std::shared_ptr<Stmt>>>
+Parser::finish_function(const std::string &kind) {
+    consume(LEFT_PAREN, "Expect '(' after " + kind + " declaration.");
+    std::vector<Token> parameters;
+    if (!check(RIGHT_PAREN)) {
+        do {
+            if (parameters.size() >= 255) {
+                report_parse_error(peek(),
+                                   "Can't have more than 255 parameters.");
+            }
+
+            parameters.push_back(consume(IDENTIFIER, "Expect parameter name."));
+        } while (match(COMMA));
+    }
+    consume(RIGHT_PAREN, "Expect ')' after parameters.");
+    consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+    auto body = block_stmt_list();
+    return {parameters, body};
 }
 
 std::shared_ptr<Expr> Parser::finish_call(std::shared_ptr<Expr> callee) {

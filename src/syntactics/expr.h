@@ -1,4 +1,5 @@
 #pragma once
+#include "src/syntactics/stmt.fwd.h"
 #include "src/syntactics/token.h"
 #include <memory>
 #include <vector>
@@ -20,6 +21,7 @@ struct Expr {
     struct Binary;
     struct Call;
     struct Grouping;
+    struct Lambda;
     struct Literal;
     struct Logical;
     struct Unary;
@@ -56,6 +58,15 @@ struct Expr::Grouping : Expr {
     std::shared_ptr<Expr> expression;
 };
 
+struct Expr::Lambda : Expr {
+    Lambda(Token keyword, std::vector<Token> params,
+           std::vector<std::shared_ptr<Stmt>> body);
+    virtual void accept(ExprVisitor &visitor) const override;
+    Token keyword;
+    std::vector<Token> params;
+    std::vector<std::shared_ptr<Stmt>> body;
+};
+
 struct Expr::Literal : Expr {
     Literal(Token value);
     virtual void accept(ExprVisitor &visitor) const override;
@@ -88,6 +99,7 @@ struct ExprVisitor {
     virtual void visit_binary_expr(const Expr::Binary &) = 0;
     virtual void visit_call_expr(const Expr::Call &) = 0;
     virtual void visit_grouping_expr(const Expr::Grouping &) = 0;
+    virtual void visit_lambda_expr(const Expr::Lambda &) = 0;
     virtual void visit_literal_expr(const Expr::Literal &) = 0;
     virtual void visit_logical_expr(const Expr::Logical &) = 0;
     virtual void visit_unary_expr(const Expr::Unary &) = 0;

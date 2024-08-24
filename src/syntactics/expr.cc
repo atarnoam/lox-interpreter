@@ -31,6 +31,15 @@ void Expr::Grouping::accept(ExprVisitor &visitor) const {
     visitor.visit_grouping_expr(*this);
 }
 
+Expr::Lambda::Lambda(Token keyword, std::vector<Token> params,
+                     std::vector<std::shared_ptr<Stmt>> body)
+    : keyword(std::move(keyword)), params(std::move(params)),
+      body(std::move(body)) {}
+
+void Expr::Lambda::accept(ExprVisitor &visitor) const {
+    visitor.visit_lambda_expr(*this);
+}
+
 Expr::Literal::Literal(Token value) : value(std::move(value)) {}
 
 void Expr::Literal::accept(ExprVisitor &visitor) const {

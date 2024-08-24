@@ -1,10 +1,9 @@
-var a = "global";
-{
-  fun showA() {
-    print a;
+fun twice(f) {
+  fun do_twice() {
+  f(); f();
   }
-
-  showA();
-  var a = "block";
-  showA();
+  return do_twice;
 }
+
+var g = twice(fun() {print "Hello!";});
+g();

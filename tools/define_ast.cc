@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <locale>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -201,14 +202,27 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
 void define_ast(const fs::path &file_h, const fs::path &file_cc,
                 const std::string &base_name,
                 const std::vector<std::string> &subclass_strs,
-                const std::vector<std::string> &includes = {}) {
+                const std::vector<std::string> &includes = {},
+                const std::optional<fs::path> &file_fwd_h = std::nullopt) {
     std::ofstream ofile_h(file_h);
     std::ofstream ofile_cc(file_cc);
 
     AstData ast_data(base_name, subclass_strs);
 
+    // Define .fwd.h
+    if (file_fwd_h.has_value()) {
+        std::ofstream ofile_fwd_h(file_fwd_h.value());
+        ofile_fwd_h << "#pragma once" << std::endl << std::endl;
+        ofile_fwd_h << fmt::format("struct {};", base_name) << std::endl;
+    }
+
     // Headers of .h
     ofile_h << "#pragma once" << std::endl;
+    if (file_fwd_h.has_value()) {
+        ofile_h << fmt::format("#include \"src/syntactics/{}.fwd.h\"",
+                               to_lower(ast_data.base_name))
+                << std::endl;
+    }
     for (const auto &include : includes) {
         ofile_h << fmt::format("#include {}", include) << std::endl;
     }
@@ -220,7 +234,7 @@ void define_ast(const fs::path &file_h, const fs::path &file_cc,
              << std::endl
              << std::endl;
 
-    // Declase visitor class
+    // Declare visitor class
     ofile_h << fmt::format("struct {};", ast_data.visitor_name) << std::endl
             << std::endl;
 
@@ -233,13 +247,18 @@ void define_ast(const fs::path &file_h, const fs::path &file_cc,
 
 void define_and_format_ast(fs::path output_dir, const std::string &base_name,
                            const std::vector<std::string> &subclass_strs,
-                           const std::vector<std::string> &includes = {}) {
+                           const std::vector<std::string> &includes = {},
+                           bool define_fwd = false) {
     output_dir = output_dir / "syntactics";
     std::cout << output_dir << std::endl;
     fs::path file_h = output_dir / (to_lower(base_name) + ".h");
     fs::path file_cc = output_dir / (to_lower(base_name) + ".cc");
+    std::optional<fs::path> file_fwd_h =
+        define_fwd ? std::optional<fs::path>(
+                         (output_dir / (to_lower(base_name) + ".fwd.h")))
+                   : std::nullopt;
 
-    define_ast(file_h, file_cc, base_name, subclass_strs, includes);
+    define_ast(file_h, file_cc, base_name, subclass_strs, includes, file_fwd_h);
 
     // Format files
     std::system(fmt::format("clang-format -i {}", file_h.string()).c_str());
@@ -252,22 +271,26 @@ int main(int argc, char **argv) {
         return 1;
     }
     std::string output_dir = argv[1];
-    define_and_format_ast(output_dir, "Expr",
-                          {
-                              "Assign   : Token name, Expr value",
-                              "Binary   : Expr left, Token op, Expr right",
-                              "Call     : Expr callee, Token paren, "
-                              "std::vector<std::shared_ptr<Expr>> arguments",
-                              "Grouping : Expr expression",
-                              "Literal  : Token value",
-                              "Logical  : Expr left, Token op, Expr right",
-                              "Unary    : Token op, Expr right",
-                              "Variable : Token name",
-                          },
-                          {
-                              "\"src/syntactics/token.h\"",
-                              "<vector>",
-                          });
+    define_and_format_ast(
+        output_dir, "Expr",
+        {
+            "Assign   : Token name, Expr value",
+            "Binary   : Expr left, Token op, Expr right",
+            "Call     : Expr callee, Token paren, "
+            "std::vector<std::shared_ptr<Expr>> arguments",
+            "Grouping : Expr expression",
+            "Lambda   : Token keyword, std::vector<Token> params, "
+            "std::vector<std::shared_ptr<Stmt>> body",
+            "Literal  : Token value",
+            "Logical  : Expr left, Token op, Expr right",
+            "Unary    : Token op, Expr right",
+            "Variable : Token name",
+        },
+        {
+            "\"src/syntactics/token.h\"",
+            "\"src/syntactics/stmt.fwd.h\"",
+            "<vector>",
+        });
 
     define_and_format_ast(
         output_dir, "Stmt",
@@ -286,5 +309,6 @@ int main(int argc, char **argv) {
         {
             "\"src/syntactics/expr.h\"",
             "<vector>",
-        });
+        },
+        true);
 }

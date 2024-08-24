@@ -5,29 +5,40 @@
 #include "src/semantics/object/lox_object.h"
 #include "src/semantics/return.h"
 
-LoxFunction::LoxFunction(std::shared_ptr<Stmt::Function> declaration,
+LoxFunction::LoxFunction(Token name, std::vector<Token> params,
+                         std::vector<std::shared_ptr<Stmt>> body,
                          Environment *closure)
-    : declaration(std::move(declaration)), closure(closure) {}
+    : identifier(std::move(name)), params(std::move(params)),
+      body(std::move(body)), closure(closure) {}
 
 LoxFunction::LoxFunction(const Stmt::Function &declaration,
                          Environment *closure)
-    : LoxFunction(std::make_shared<Stmt::Function>(declaration), closure) {}
+    : LoxFunction(declaration.name, declaration.params, declaration.body,
+                  closure) {}
+
+LoxFunction::LoxFunction(const Expr::Lambda &declaration, Environment *closure)
+    : LoxFunction(declaration.keyword, declaration.params, declaration.body,
+                  closure) {}
 
 std::string LoxFunction::to_string() const {
-    return "<fun " + declaration->name.lexeme + ">";
+    if (identifier.type == IDENTIFIER) {
+        return "<fun " + identifier.lexeme + ">";
+    } else {
+        return "<anonymous function>";
+    }
 }
 
 LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
                             const std::vector<LoxObject> &arguments) {
     Environment *func_environment =
         interpreter.environments.add_environment(closure);
-    for (size_t i = 0; i < declaration->params.size(); ++i) {
-        func_environment->define(declaration->params[i].lexeme, arguments[i]);
+    for (size_t i = 0; i < params.size(); ++i) {
+        func_environment->define(params[i].lexeme, arguments[i]);
     }
 
     Environment *previous_environment = interpreter.curr_environment;
     try {
-        interpreter.execute_block(declaration->body, func_environment);
+        interpreter.execute_block(body, func_environment);
     } catch (const Return &return_value) {
         interpreter.curr_environment = previous_environment;
         return return_value.return_value;
@@ -35,4 +46,4 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
     return LoxObject{};
 }
 
-int LoxFunction::arity() const { return declaration->params.size(); }
+int LoxFunction::arity() const { return params.size(); }

@@ -41,11 +41,12 @@ struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
   private:
     void visit_assign_expr(const Expr::Assign &assign) override;
     void visit_binary_expr(const Expr::Binary &binary) override;
+    void visit_call_expr(const Expr::Call &expr) override;
     void visit_grouping_expr(const Expr::Grouping &grouping) override;
+    void visit_lambda_expr(const Expr::Lambda &) override;
     void visit_literal_expr(const Expr::Literal &literal) override;
     void visit_logical_expr(const Expr::Logical &logical) override;
     void visit_unary_expr(const Expr::Unary &unary) override;
-    void visit_call_expr(const Expr::Call &expr) override;
     void visit_variable_expr(const Expr::Variable &variable) override;
 
     void visit_block_stmt(const Stmt::Block &block) override;

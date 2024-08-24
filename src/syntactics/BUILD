@@ -4,7 +4,10 @@ cc_library(
     name = "expr",
     srcs = ["expr.cc"],
     hdrs = ["expr.h"],
-    deps = [":token"],
+    deps = [
+        ":stmt_fwd",
+        ":token",
+    ],
 )
 
 cc_library(
@@ -12,6 +15,11 @@ cc_library(
     srcs = ["stmt.cc"],
     hdrs = ["stmt.h"],
     deps = [":expr"],
+)
+
+cc_library(
+    name = "stmt_fwd",
+    hdrs = ["stmt.fwd.h"],
 )
 
 cc_library(

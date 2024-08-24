@@ -128,6 +128,12 @@ void Interpreter::visit_grouping_expr(const Expr::Grouping &grouping) {
     grouping.expression->accept(*this);
 }
 
+void Interpreter::visit_lambda_expr(const Expr::Lambda &func) {
+    LoxObject func_object =
+        std::make_shared<LoxFunction>(func, curr_environment);
+    expr_result = func_object;
+}
+
 void Interpreter::visit_literal_expr(const Expr::Literal &literal) {
     switch (literal.value.type) {
     case NIL:

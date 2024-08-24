@@ -1,5 +1,6 @@
 #pragma once
 #include "src/syntactics/expr.h"
+#include "src/syntactics/stmt.fwd.h"
 #include <memory>
 #include <vector>
 

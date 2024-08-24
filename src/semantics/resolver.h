@@ -39,23 +39,24 @@ struct Resolver : ExprVisitor, StmtVisitor {
         FUNCTION,
     };
 
-    void visit_assign_expr(const Expr::Assign &);
-    void visit_binary_expr(const Expr::Binary &);
-    void visit_call_expr(const Expr::Call &);
-    void visit_grouping_expr(const Expr::Grouping &);
-    void visit_literal_expr(const Expr::Literal &);
-    void visit_logical_expr(const Expr::Logical &);
-    void visit_unary_expr(const Expr::Unary &);
-    void visit_variable_expr(const Expr::Variable &);
+    void visit_assign_expr(const Expr::Assign &) override;
+    void visit_binary_expr(const Expr::Binary &) override;
+    void visit_call_expr(const Expr::Call &) override;
+    void visit_grouping_expr(const Expr::Grouping &) override;
+    void visit_lambda_expr(const Expr::Lambda &) override;
+    void visit_literal_expr(const Expr::Literal &) override;
+    void visit_logical_expr(const Expr::Logical &) override;
+    void visit_unary_expr(const Expr::Unary &) override;
+    void visit_variable_expr(const Expr::Variable &) override;
 
-    void visit_block_stmt(const Stmt::Block &);
-    void visit_expression_stmt(const Stmt::Expression &);
-    void visit_if_stmt(const Stmt::If &);
-    void visit_function_stmt(const Stmt::Function &);
-    void visit_print_stmt(const Stmt::Print &);
-    void visit_return_stmt(const Stmt::Return &);
-    void visit_var_stmt(const Stmt::Var &);
-    void visit_while_stmt(const Stmt::While &);
+    void visit_block_stmt(const Stmt::Block &) override;
+    void visit_expression_stmt(const Stmt::Expression &) override;
+    void visit_if_stmt(const Stmt::If &) override;
+    void visit_function_stmt(const Stmt::Function &) override;
+    void visit_print_stmt(const Stmt::Print &) override;
+    void visit_return_stmt(const Stmt::Return &) override;
+    void visit_var_stmt(const Stmt::Var &) override;
+    void visit_while_stmt(const Stmt::While &) override;
 
     void begin_scope();
     void end_scope();
@@ -64,8 +65,9 @@ struct Resolver : ExprVisitor, StmtVisitor {
     void define(const Token &var);
 
     void resolve_local(const Expr &expr, const Token &token);
-    void resolve_function(const Stmt::Function &function,
-                          FunctionType function_type);
+    void resolve_function(const std::vector<Token> &params,
+                          const std::vector<std::shared_ptr<Stmt>> &body,
+                          FunctionType type);
 
     std::string report_resolve_error(const Token &token,
                                      const std::string &message,
