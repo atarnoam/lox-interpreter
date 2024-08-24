@@ -75,6 +75,7 @@ cc_library(
     deps = [
         "//src/semantics/object:lox_callable",
         "//src/semantics/object:lox_object",
+        "//src/semantics/object:print_lox_object",
     ],
 )
 

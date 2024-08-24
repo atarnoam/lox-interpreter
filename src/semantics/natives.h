@@ -5,12 +5,20 @@
 #include <string>
 #include <utility>
 
+extern const std::vector<std::pair<std::string, LoxObject>> natives;
+
 struct ClockFun final : LoxCallable {
-    virtual std::string to_string() const override;
+    std::string to_string() const override;
     LoxObject call(AbstractInterpreter &interpreter,
                    const std::vector<LoxObject> &arguments) override;
 
     int arity() const override;
 };
 
-extern const std::vector<std::pair<std::string, LoxObject>> natives;
+struct ToStringFun final : LoxCallable {
+    std::string to_string() const override;
+    LoxObject call(AbstractInterpreter &interpreter,
+                   const std::vector<LoxObject> &arguments) override;
+
+    int arity() const override;
+};
