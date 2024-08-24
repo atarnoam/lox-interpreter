@@ -196,6 +196,14 @@ void Interpreter::visit_call_expr(const Expr::Call &expr) {
         throw RuntimeError(expr.paren, "Can only call functions and classes.");
     }
     auto function = callee.get<std::shared_ptr<LoxCallable>>();
+
+    if (arguments.size() != function->arity()) {
+        throw RuntimeError(expr.paren,
+                           "Expected " + std::to_string(function->arity()) +
+                               " arguments but got " +
+                               std::to_string(arguments.size()) + ".");
+    }
+
     expr_result = function->call(*this, arguments);
 }
 
