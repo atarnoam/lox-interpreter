@@ -15,6 +15,11 @@ struct LoxFunction final : LoxCallable {
                    const std::vector<LoxObject> &arguments) override;
     size_t arity() const;
 
+    // Todo: add option to bind more than one objects.
+    std::shared_ptr<LoxFunction>
+    bind(const std::pair<std::string, LoxObject> &to_bind,
+         EnvironmentTree &envs);
+
   private:
     // If named, this is the name of the function. Otherwise, it is the keyword
     // "fun".

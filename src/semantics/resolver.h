@@ -40,27 +40,30 @@ struct Resolver final : ExprVisitor, StmtVisitor {
         METHOD,
     };
 
-    void visit_assign_expr(const Expr::Assign &) override;
-    void visit_binary_expr(const Expr::Binary &) override;
-    void visit_call_expr(const Expr::Call &) override;
-    void visit_get_expr(const Expr::Get &) override;
-    void visit_grouping_expr(const Expr::Grouping &) override;
-    void visit_lambda_expr(const Expr::Lambda &) override;
-    void visit_literal_expr(const Expr::Literal &) override;
-    void visit_logical_expr(const Expr::Logical &) override;
-    void visit_set_expr(const Expr::Set &) override;
-    void visit_unary_expr(const Expr::Unary &) override;
-    void visit_variable_expr(const Expr::Variable &) override;
+    enum class ClassType { NONE, CLASS };
 
-    void visit_block_stmt(const Stmt::Block &) override;
-    void visit_class_stmt(const Stmt::Class &) override;
-    void visit_expression_stmt(const Stmt::Expression &) override;
-    void visit_if_stmt(const Stmt::If &) override;
-    void visit_function_stmt(const Stmt::Function &) override;
-    void visit_print_stmt(const Stmt::Print &) override;
-    void visit_return_stmt(const Stmt::Return &) override;
-    void visit_var_stmt(const Stmt::Var &) override;
-    void visit_while_stmt(const Stmt::While &) override;
+    void visit_assign_expr(const Expr::Assign &expr) override;
+    void visit_binary_expr(const Expr::Binary &expr) override;
+    void visit_call_expr(const Expr::Call &expr) override;
+    void visit_get_expr(const Expr::Get &expr) override;
+    void visit_grouping_expr(const Expr::Grouping &expr) override;
+    void visit_lambda_expr(const Expr::Lambda &expr) override;
+    void visit_literal_expr(const Expr::Literal &expr) override;
+    void visit_logical_expr(const Expr::Logical &expr) override;
+    void visit_set_expr(const Expr::Set &expr) override;
+    void visit_this_expr(const Expr::This &expr) override;
+    void visit_unary_expr(const Expr::Unary &expr) override;
+    void visit_variable_expr(const Expr::Variable &expr) override;
+
+    void visit_block_stmt(const Stmt::Block &stmt) override;
+    void visit_class_stmt(const Stmt::Class &stmt) override;
+    void visit_expression_stmt(const Stmt::Expression &stmt) override;
+    void visit_if_stmt(const Stmt::If &stmt) override;
+    void visit_function_stmt(const Stmt::Function &stmt) override;
+    void visit_print_stmt(const Stmt::Print &stmt) override;
+    void visit_return_stmt(const Stmt::Return &stmt) override;
+    void visit_var_stmt(const Stmt::Var &stmt) override;
+    void visit_while_stmt(const Stmt::While &stmt) override;
 
     void begin_scope();
     void end_scope();
@@ -82,5 +85,6 @@ struct Resolver final : ExprVisitor, StmtVisitor {
     AbstractInterpreter &interpreter;
     std::vector<Scope> scopes;
     FunctionType current_function;
+    ClassType current_class;
     bool m_had_error;
 };

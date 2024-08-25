@@ -47,3 +47,13 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
 }
 
 size_t LoxFunction::arity() const { return params.size(); }
+
+std::shared_ptr<LoxFunction>
+LoxFunction::bind(const std::pair<std::string, LoxObject> &to_bind,
+                  EnvironmentTree &envs) {
+    Environment *new_enviroment = envs.add_environment(closure);
+    auto [name, object] = to_bind;
+    new_enviroment->define(name, object);
+    return std::make_shared<LoxFunction>(identifier, params, body,
+                                         new_enviroment);
+}

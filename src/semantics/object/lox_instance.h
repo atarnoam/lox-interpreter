@@ -14,7 +14,8 @@ struct LoxInstance {
 
     std::string to_string() const;
 
-    LoxObject get(Token name) const;
+    LoxObject get(Token name, const std::shared_ptr<LoxInstance> &this_bind,
+                  EnvironmentTree &envs) const;
     void set(Token name, const LoxObject &value);
 
   private:

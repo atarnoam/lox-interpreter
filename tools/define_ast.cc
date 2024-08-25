@@ -191,7 +191,7 @@ void define_visitor(std::ostream &os_h, std::ostream &os_cc,
     os_h << fmt::format("struct {} {{", ast_data.visitor_name) << std::endl;
     for (const auto &[subclass_name, _] : ast_data.subclasses) {
         os_h << fmt::format(
-                    "    virtual void visit_{0}_{2}(const {3}::{1} &) = 0;",
+                    "    virtual void visit_{0}_{2}(const {3}::{1} &{2}) = 0;",
                     to_lower(subclass_name), subclass_name,
                     to_lower(ast_data.base_name), ast_data.base_name)
              << std::endl;
@@ -285,6 +285,7 @@ int main(int argc, char **argv) {
             "Literal  : Token value",
             "Logical  : Expr left, Token op, Expr right",
             "Set      : Expr object, Token name, Expr value",
+            "This     : Token keyword",
             "Unary    : Token op, Expr right",
             "Variable : Token name",
         },

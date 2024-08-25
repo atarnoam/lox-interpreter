@@ -70,6 +70,12 @@ void Expr::Set::accept(ExprVisitor &visitor) const {
     visitor.visit_set_expr(*this);
 }
 
+Expr::This::This(Token keyword) : keyword(std::move(keyword)) {}
+
+void Expr::This::accept(ExprVisitor &visitor) const {
+    visitor.visit_this_expr(*this);
+}
+
 Expr::Unary::Unary(Token op, std::shared_ptr<Expr> right)
     : op(std::move(op)), right(std::move(right)) {}
 

@@ -26,6 +26,7 @@ struct Expr {
     struct Literal;
     struct Logical;
     struct Set;
+    struct This;
     struct Unary;
     struct Variable;
 };
@@ -98,6 +99,12 @@ struct Expr::Set : Expr {
     std::shared_ptr<Expr> value;
 };
 
+struct Expr::This : Expr {
+    This(Token keyword);
+    virtual void accept(ExprVisitor &visitor) const override;
+    Token keyword;
+};
+
 struct Expr::Unary : Expr {
     Unary(Token op, std::shared_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
@@ -112,15 +119,16 @@ struct Expr::Variable : Expr {
 };
 
 struct ExprVisitor {
-    virtual void visit_assign_expr(const Expr::Assign &) = 0;
-    virtual void visit_binary_expr(const Expr::Binary &) = 0;
-    virtual void visit_call_expr(const Expr::Call &) = 0;
-    virtual void visit_get_expr(const Expr::Get &) = 0;
-    virtual void visit_grouping_expr(const Expr::Grouping &) = 0;
-    virtual void visit_lambda_expr(const Expr::Lambda &) = 0;
-    virtual void visit_literal_expr(const Expr::Literal &) = 0;
-    virtual void visit_logical_expr(const Expr::Logical &) = 0;
-    virtual void visit_set_expr(const Expr::Set &) = 0;
-    virtual void visit_unary_expr(const Expr::Unary &) = 0;
-    virtual void visit_variable_expr(const Expr::Variable &) = 0;
+    virtual void visit_assign_expr(const Expr::Assign &expr) = 0;
+    virtual void visit_binary_expr(const Expr::Binary &expr) = 0;
+    virtual void visit_call_expr(const Expr::Call &expr) = 0;
+    virtual void visit_get_expr(const Expr::Get &expr) = 0;
+    virtual void visit_grouping_expr(const Expr::Grouping &expr) = 0;
+    virtual void visit_lambda_expr(const Expr::Lambda &expr) = 0;
+    virtual void visit_literal_expr(const Expr::Literal &expr) = 0;
+    virtual void visit_logical_expr(const Expr::Logical &expr) = 0;
+    virtual void visit_set_expr(const Expr::Set &expr) = 0;
+    virtual void visit_this_expr(const Expr::This &expr) = 0;
+    virtual void visit_unary_expr(const Expr::Unary &expr) = 0;
+    virtual void visit_variable_expr(const Expr::Variable &expr) = 0;
 };

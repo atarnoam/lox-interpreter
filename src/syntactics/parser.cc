@@ -382,6 +382,9 @@ std::shared_ptr<Expr> Parser::primary() {
         auto [parameters, body] = finish_function("lambda");
         expr = std::make_shared<Expr::Lambda>(token, parameters, body);
     } break;
+    case THIS:
+        expr = std::make_shared<Expr::This>(token);
+        break;
     default:
         throw parse_error(peek(), "Expect expression");
     }

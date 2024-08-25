@@ -185,6 +185,10 @@ void Interpreter::visit_set_expr(const Expr::Set &set) {
     expr_result = value;
 }
 
+void Interpreter::visit_this_expr(const Expr::This &expr) {
+    expr_result = lookup_variable(expr.keyword, &expr);
+}
+
 void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     unary.right->accept(*this);
     switch (unary.op.type) {
@@ -229,7 +233,7 @@ void Interpreter::visit_get_expr(const Expr::Get &expr) {
         throw RuntimeError(expr.name, "Only instances have properties.");
     }
     auto instance = object.get<std::shared_ptr<LoxInstance>>();
-    expr_result = instance->get(expr.name);
+    expr_result = instance->get(expr.name, instance, environments);
 }
 
 void Interpreter::visit_variable_expr(const Expr::Variable &variable) {

@@ -93,13 +93,13 @@ struct Stmt::While : Stmt {
 };
 
 struct StmtVisitor {
-    virtual void visit_block_stmt(const Stmt::Block &) = 0;
-    virtual void visit_class_stmt(const Stmt::Class &) = 0;
-    virtual void visit_expression_stmt(const Stmt::Expression &) = 0;
-    virtual void visit_if_stmt(const Stmt::If &) = 0;
-    virtual void visit_function_stmt(const Stmt::Function &) = 0;
-    virtual void visit_print_stmt(const Stmt::Print &) = 0;
-    virtual void visit_return_stmt(const Stmt::Return &) = 0;
-    virtual void visit_var_stmt(const Stmt::Var &) = 0;
-    virtual void visit_while_stmt(const Stmt::While &) = 0;
+    virtual void visit_block_stmt(const Stmt::Block &stmt) = 0;
+    virtual void visit_class_stmt(const Stmt::Class &stmt) = 0;
+    virtual void visit_expression_stmt(const Stmt::Expression &stmt) = 0;
+    virtual void visit_if_stmt(const Stmt::If &stmt) = 0;
+    virtual void visit_function_stmt(const Stmt::Function &stmt) = 0;
+    virtual void visit_print_stmt(const Stmt::Print &stmt) = 0;
+    virtual void visit_return_stmt(const Stmt::Return &stmt) = 0;
+    virtual void visit_var_stmt(const Stmt::Var &stmt) = 0;
+    virtual void visit_while_stmt(const Stmt::While &stmt) = 0;
 };

@@ -1,18 +1,14 @@
-fun twice(f) {
-  fun do_twice() {
-  f(); f();
-  }
-  return do_twice;
-}
-
 class A {
-  f(x) {
-    return x;
+  f() {
+    return this.x;
+  }
+
+  g() {
+    return this.y;
   }
 }
-
-var g = twice(fun() {print "Hello!";});
-g();
 
 var a = A();
-print a.f(5);
+a.x = 5;
+print a.f();
+print a.g();

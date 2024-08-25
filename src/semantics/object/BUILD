@@ -93,6 +93,7 @@ cc_library(
     deps = [
         ":lox_callable",
         ":lox_class_h",
+        ":lox_function",
         ":lox_instance_fwd",
         ":lox_object",
     ],

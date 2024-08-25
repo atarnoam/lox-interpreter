@@ -4,7 +4,7 @@
 
 Resolver::Resolver(AbstractInterpreter &interpreter)
     : interpreter(interpreter), scopes(), current_function(FunctionType::NONE),
-      m_had_error(false) {}
+      current_class(ClassType::NONE), m_had_error(false) {}
 
 void Resolver::resolve(const std::shared_ptr<Expr> &expr) {
     if (expr) {
@@ -65,6 +65,15 @@ void Resolver::visit_set_expr(const Expr::Set &expr) {
     resolve(expr.object);
 }
 
+void Resolver::visit_this_expr(const Expr::This &expr) {
+    if (current_class == ClassType::NONE) {
+        report_resolve_error(expr.keyword,
+                             "Can't use 'this' outside of a class.");
+        return;
+    }
+    resolve_local(expr, expr.keyword);
+}
+
 void Resolver::visit_unary_expr(const Expr::Unary &expr) {
     resolve(expr.right);
 }
@@ -74,8 +83,8 @@ void Resolver::visit_variable_expr(const Expr::Variable &var) {
                                 VariableStatus::DECLARED) {
         report_resolve_error(
             var.name, "Can't read local variable in its own initializer.");
+        return;
     }
-
     resolve_local(var, var.name);
 }
 
@@ -90,12 +99,22 @@ void Resolver::visit_expression_stmt(const Stmt::Expression &stmt) {
 }
 
 void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
+    ClassType enclosing_class = current_class;
+    current_class = ClassType::CLASS;
+
     declare(stmt.name);
     define(stmt.name);
+
+    begin_scope();
+    scopes.back().define("this");
 
     for (const auto &method : stmt.methods) {
         resolve_function(*method, FunctionType::METHOD);
     }
+
+    end_scope();
+
+    current_class = enclosing_class;
 }
 
 void Resolver::visit_if_stmt(const Stmt::If &stmt) {
