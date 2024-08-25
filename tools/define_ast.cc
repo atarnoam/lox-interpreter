@@ -299,8 +299,8 @@ int main(int argc, char **argv) {
         output_dir, "Stmt",
         {
             "Block      : std::vector<std::shared_ptr<Stmt>> statements",
-            "Class      : Token name, "
-            "std::vector<std::shared_ptr<Stmt::Function>> methods",
+            "Class      : Token name, std::shared_ptr<Expr::Variable> "
+            "superclass, std::vector<std::shared_ptr<Stmt::Function>> methods",
             "Expression : std::shared_ptr<Expr> expression",
             "If         : std::shared_ptr<Expr> condition, Stmt then_branch,"
             "   Stmt else_branch",

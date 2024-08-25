@@ -88,6 +88,13 @@ std::shared_ptr<Stmt> Parser::var_declaration() {
 
 std::shared_ptr<Stmt> Parser::class_declaration() {
     Token name = consume(IDENTIFIER, "Expect class name.");
+
+    std::shared_ptr<Expr::Variable> superclass = nullptr;
+    if (match(LESS)) {
+        superclass = std::make_shared<Expr::Variable>(
+            consume(IDENTIFIER, "Expect superclass name."));
+    }
+
     consume(LEFT_BRACE, "Expect '{' before class body.");
 
     std::vector<std::shared_ptr<Stmt::Function>> methods;
@@ -98,7 +105,7 @@ std::shared_ptr<Stmt> Parser::class_declaration() {
 
     consume(RIGHT_BRACE, "Expect '}' after class body.");
 
-    return std::make_shared<Stmt::Class>(name, std::move(methods));
+    return std::make_shared<Stmt::Class>(name, superclass, std::move(methods));
 }
 
 std::shared_ptr<Stmt> Parser::statement() {

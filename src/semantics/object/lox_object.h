@@ -6,6 +6,7 @@
 #include "src/tp_utils.h"
 
 #include <compare>
+#include <concepts>
 #include <string>
 #include <variant>
 #include <vector>
@@ -33,17 +34,39 @@ struct LoxObject {
     operator LoxObjectT() const;
 
     template <class T>
-    constexpr T &get() {
+    T &get() {
         return std::get<T>(object);
     }
     template <class T>
-    constexpr const T &get() const {
+    const T &get() const {
         return std::get<T>(object);
     }
 
     template <class T>
-    constexpr bool holds_alternative() const {
+    requires std::derived_from<T, LoxCallable> std::shared_ptr<T> get() {
+        auto lox_ptr = std::get<std::shared_ptr<LoxCallable>>(object);
+        return std::dynamic_pointer_cast<T>(lox_ptr);
+    }
+
+    template <class T>
+    requires std::derived_from<T, LoxCallable>
+    const std::shared_ptr<T> &get() const {
+        auto lox_ptr = std::get<std::shared_ptr<LoxCallable>>(object);
+        return std::dynamic_pointer_cast<T>(lox_ptr);
+    }
+
+    template <class T>
+    bool holds_alternative() const {
         return std::holds_alternative<T>(object);
+    }
+
+    template <class T>
+    requires std::derived_from<T, LoxCallable>
+    bool holds_alternative() const {
+        using CallablePtr = std::shared_ptr<LoxCallable>;
+        return std::holds_alternative<CallablePtr>(object) and
+               (std::dynamic_pointer_cast<T>(std::get<CallablePtr>(object)) !=
+                nullptr);
     }
 
     explicit operator bool() const;

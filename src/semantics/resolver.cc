@@ -105,6 +105,15 @@ void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     declare(stmt.name);
     define(stmt.name);
 
+    if (stmt.superclass != nullptr) {
+        if (stmt.name.lexeme == stmt.superclass->name.lexeme) {
+            report_resolve_error(stmt.superclass->name,
+                                 "A class can't inherit from itself.");
+        }
+
+        resolve(stmt.superclass);
+    }
+
     begin_scope();
     scopes.back().define("this");
 

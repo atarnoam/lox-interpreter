@@ -274,6 +274,16 @@ void Interpreter::visit_block_stmt(const Stmt::Block &block) {
 }
 
 void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
+    std::shared_ptr<LoxClass> superclass = nullptr;
+    if (stmt.superclass != nullptr) {
+        LoxObject superclass_obj = evaluate(stmt.superclass);
+        if (!superclass_obj.holds_alternative<LoxClass>()) {
+            throw RuntimeError(stmt.superclass->name,
+                               "Superclass must be a class.");
+        }
+        superclass = superclass_obj.get<LoxClass>();
+    }
+
     curr_environment->define(stmt.name.lexeme, LoxNull{});
 
     LoxClass::MethodMap methods;
@@ -284,7 +294,7 @@ void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
     }
 
     std::shared_ptr<LoxCallable> lox_class =
-        std::make_shared<LoxClass>(stmt.name.lexeme, methods);
+        std::make_shared<LoxClass>(stmt.name.lexeme, superclass, methods);
     curr_environment->assign(stmt.name, lox_class);
 }
 

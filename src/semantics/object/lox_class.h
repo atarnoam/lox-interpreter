@@ -7,6 +7,7 @@
 #include "src/semantics/object/lox_instance.fwd.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -14,7 +15,8 @@ struct LoxClass final : LoxCallable {
     using MethodMap =
         std::unordered_map<std::string, std::shared_ptr<LoxFunction>>;
 
-    LoxClass(std::string name, MethodMap methods);
+    LoxClass(std::string name, std::shared_ptr<LoxClass> superclass,
+             MethodMap methods);
 
     std::shared_ptr<LoxFunction> find_method(const std::string &name) const;
 
@@ -27,5 +29,6 @@ struct LoxClass final : LoxCallable {
 
   private:
     std::string name;
+    std::shared_ptr<LoxClass> superclass;
     MethodMap methods;
 };

@@ -35,9 +35,11 @@ struct Stmt::Block : Stmt {
 };
 
 struct Stmt::Class : Stmt {
-    Class(Token name, std::vector<std::shared_ptr<Stmt::Function>> methods);
+    Class(Token name, std::shared_ptr<Expr::Variable> superclass,
+          std::vector<std::shared_ptr<Stmt::Function>> methods);
     virtual void accept(StmtVisitor &visitor) const override;
     Token name;
+    std::shared_ptr<Expr::Variable> superclass;
     std::vector<std::shared_ptr<Stmt::Function>> methods;
 };
 
