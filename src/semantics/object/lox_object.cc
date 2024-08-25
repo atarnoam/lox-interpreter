@@ -23,6 +23,9 @@ LoxObject::operator bool() const {
                           [](const std::shared_ptr<LoxCallable> &ptr) {
                               return ptr != nullptr;
                           },
+                          [](const std::shared_ptr<LoxInstance> &ptr) {
+                              return ptr != nullptr;
+                          },
                           [](const std::string &x) { return !x.empty(); },
                           [](auto x) -> bool { return x; },
                       },

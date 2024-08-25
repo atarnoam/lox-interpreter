@@ -1,6 +1,9 @@
 #pragma once
 
+#include "src/semantics/object/lox_class.fwd.h"
+
 #include "src/semantics/object/lox_callable.h"
+#include "src/semantics/object/lox_instance.fwd.h"
 
 #include <string>
 

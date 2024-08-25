@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/semantics/object/lox_callable.fwd.h"
+#include "src/semantics/object/lox_instance.fwd.h"
 #include "src/syntactics/token.h"
 #include "src/tp_utils.h"
 
@@ -18,8 +19,10 @@ struct LoxNull {
 std::ostream &operator<<(std::ostream &os, const LoxNull &null);
 
 struct LoxObject {
+    // TODO: Change shared_ptr to unique_ptr.
     using LoxObjectT = std::variant<LoxNull, bool, double, std::string,
-                                    std::shared_ptr<LoxCallable>>;
+                                    std::shared_ptr<LoxCallable>,
+                                    std::shared_ptr<LoxInstance>>;
 
     LoxObject() = default;
     LoxObject(LoxObjectT object);

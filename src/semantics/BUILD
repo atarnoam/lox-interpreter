@@ -62,6 +62,7 @@ cc_library(
         "//src/semantics/object:lox_callable",
         "//src/semantics/object:lox_class",
         "//src/semantics/object:lox_function",
+        "//src/semantics/object:lox_instance",
         "//src/semantics/object:lox_object",
         "//src/semantics/object:print_lox_object",
         "//src/syntactics:expr",
