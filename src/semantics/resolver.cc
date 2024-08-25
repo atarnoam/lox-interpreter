@@ -66,6 +66,14 @@ void Resolver::visit_set_expr(const Expr::Set &expr) {
 }
 
 void Resolver::visit_super_expr(const Expr::Super &expr) {
+    if (current_class == ClassType::NONE) {
+        report_resolve_error(expr.keyword,
+                             "Can't use 'super' outside of a class.");
+    } else if (current_class != ClassType::SUBCLASS) {
+        report_resolve_error(
+            expr.keyword, "Can't use 'super' in a class with no superclass.");
+    }
+
     resolve_local(expr, expr.keyword);
 }
 
@@ -116,6 +124,7 @@ void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     }
 
     if (stmt.superclass != nullptr) {
+        current_class = ClassType::SUBCLASS;
         resolve(stmt.superclass);
     }
 

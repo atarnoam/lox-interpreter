@@ -41,7 +41,7 @@ struct Resolver final : ExprVisitor, StmtVisitor {
         METHOD,
     };
 
-    enum class ClassType { NONE, CLASS };
+    enum class ClassType { NONE, CLASS, SUBCLASS };
 
     void visit_assign_expr(const Expr::Assign &expr) override;
     void visit_binary_expr(const Expr::Binary &expr) override;
