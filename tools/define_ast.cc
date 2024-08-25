@@ -284,6 +284,7 @@ int main(int argc, char **argv) {
             "std::vector<std::shared_ptr<Stmt>> body",
             "Literal  : Token value",
             "Logical  : Expr left, Token op, Expr right",
+            "Set      : Expr object, Token name, Expr value",
             "Unary    : Token op, Expr right",
             "Variable : Token name",
         },

@@ -15,6 +15,7 @@ struct LoxInstance {
     std::string to_string() const;
 
     LoxObject get(Token name) const;
+    void set(Token name, const LoxObject &value);
 
   private:
     const LoxClass *lclass;

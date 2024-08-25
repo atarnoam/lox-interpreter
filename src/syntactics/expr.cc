@@ -61,6 +61,15 @@ void Expr::Logical::accept(ExprVisitor &visitor) const {
     visitor.visit_logical_expr(*this);
 }
 
+Expr::Set::Set(std::shared_ptr<Expr> object, Token name,
+               std::shared_ptr<Expr> value)
+    : object(std::move(object)), name(std::move(name)),
+      value(std::move(value)) {}
+
+void Expr::Set::accept(ExprVisitor &visitor) const {
+    visitor.visit_set_expr(*this);
+}
+
 Expr::Unary::Unary(Token op, std::shared_ptr<Expr> right)
     : op(std::move(op)), right(std::move(right)) {}
 

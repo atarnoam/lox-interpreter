@@ -47,6 +47,7 @@ struct Interpreter final : AbstractInterpreter, ExprVisitor, StmtVisitor {
     void visit_lambda_expr(const Expr::Lambda &) override;
     void visit_literal_expr(const Expr::Literal &literal) override;
     void visit_logical_expr(const Expr::Logical &logical) override;
+    void visit_set_expr(const Expr::Set &) override;
     void visit_unary_expr(const Expr::Unary &unary) override;
     void visit_variable_expr(const Expr::Variable &variable) override;
 

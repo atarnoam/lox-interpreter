@@ -25,6 +25,7 @@ struct Expr {
     struct Lambda;
     struct Literal;
     struct Logical;
+    struct Set;
     struct Unary;
     struct Variable;
 };
@@ -89,6 +90,14 @@ struct Expr::Logical : Expr {
     std::shared_ptr<Expr> right;
 };
 
+struct Expr::Set : Expr {
+    Set(std::shared_ptr<Expr> object, Token name, std::shared_ptr<Expr> value);
+    virtual void accept(ExprVisitor &visitor) const override;
+    std::shared_ptr<Expr> object;
+    Token name;
+    std::shared_ptr<Expr> value;
+};
+
 struct Expr::Unary : Expr {
     Unary(Token op, std::shared_ptr<Expr> right);
     virtual void accept(ExprVisitor &visitor) const override;
@@ -111,6 +120,7 @@ struct ExprVisitor {
     virtual void visit_lambda_expr(const Expr::Lambda &) = 0;
     virtual void visit_literal_expr(const Expr::Literal &) = 0;
     virtual void visit_logical_expr(const Expr::Logical &) = 0;
+    virtual void visit_set_expr(const Expr::Set &) = 0;
     virtual void visit_unary_expr(const Expr::Unary &) = 0;
     virtual void visit_variable_expr(const Expr::Variable &) = 0;
 };

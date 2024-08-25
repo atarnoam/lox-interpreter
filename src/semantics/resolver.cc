@@ -60,6 +60,11 @@ void Resolver::visit_logical_expr(const Expr::Logical &expr) {
     resolve(expr.right);
 }
 
+void Resolver::visit_set_expr(const Expr::Set &expr) {
+    resolve(expr.value);
+    resolve(expr.object);
+}
+
 void Resolver::visit_unary_expr(const Expr::Unary &expr) {
     resolve(expr.right);
 }

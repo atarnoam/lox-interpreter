@@ -172,6 +172,19 @@ void Interpreter::visit_logical_expr(const Expr::Logical &logical) {
     evaluate(logical.right);
 }
 
+void Interpreter::visit_set_expr(const Expr::Set &set) {
+    LoxObject object = evaluate(set.object);
+
+    if (!object.holds_alternative<std::shared_ptr<LoxInstance>>()) {
+        throw RuntimeError(set.name, "Only instances have fields.");
+    }
+
+    LoxObject value = evaluate(set.value);
+    object.get<std::shared_ptr<LoxInstance>>()->set(set.name, value);
+
+    expr_result = value;
+}
+
 void Interpreter::visit_unary_expr(const Expr::Unary &unary) {
     unary.right->accept(*this);
     switch (unary.op.type) {

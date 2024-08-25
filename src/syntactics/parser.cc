@@ -247,10 +247,11 @@ std::shared_ptr<Expr> Parser::assignment() {
         Token equals = previous();
         auto value = assignment();
 
-        std::shared_ptr<Expr::Variable> var_expr =
-            std::dynamic_pointer_cast<Expr::Variable>(std::move(expr));
-        if (var_expr) {
+        if (auto var_expr = std::dynamic_pointer_cast<Expr::Variable>(expr)) {
             return make_shared<Expr::Assign>(var_expr->name, std::move(value));
+        } else if (auto get_expr = std::dynamic_pointer_cast<Expr::Get>(expr)) {
+            return make_shared<Expr::Set>(get_expr->object, get_expr->name,
+                                          value);
         }
 
         report_parse_error(equals, "Invalid assignment target.");

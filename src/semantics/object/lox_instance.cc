@@ -16,6 +16,10 @@ LoxObject LoxInstance::get(Token name) const {
     return fields.at(name.lexeme);
 }
 
+void LoxInstance::set(Token name, const LoxObject &value) {
+    fields[name.lexeme] = value;
+}
+
 std::ostream &operator<<(std::ostream &os, const LoxInstance &callable) {
     return os << callable.to_string();
 }
