@@ -9,10 +9,15 @@ LoxClass::LoxClass(std::string name, std::shared_ptr<LoxClass> superclass,
 
 std::shared_ptr<LoxFunction>
 LoxClass::find_method(const std::string &name) const {
-    if (!methods.contains(name)) {
-        return nullptr;
+    if (methods.contains(name)) {
+        return methods.at(name);
     }
-    return methods.at(name);
+
+    if (superclass != nullptr) {
+        return superclass->find_method(name);
+    }
+
+    return nullptr;
 }
 
 std::string LoxClass::to_string() const { return name; }
