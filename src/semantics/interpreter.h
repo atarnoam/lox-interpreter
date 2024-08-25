@@ -19,7 +19,7 @@ enum class InterpreterMode {
     INTERACTIVE,
 };
 
-struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
+struct Interpreter final : AbstractInterpreter, ExprVisitor, StmtVisitor {
     using AbstractInterpreter::execute;
 
     Interpreter();
@@ -42,6 +42,7 @@ struct Interpreter : AbstractInterpreter, ExprVisitor, StmtVisitor {
     void visit_assign_expr(const Expr::Assign &assign) override;
     void visit_binary_expr(const Expr::Binary &binary) override;
     void visit_call_expr(const Expr::Call &expr) override;
+    void visit_get_expr(const Expr::Get &) override;
     void visit_grouping_expr(const Expr::Grouping &grouping) override;
     void visit_lambda_expr(const Expr::Lambda &) override;
     void visit_literal_expr(const Expr::Literal &literal) override;

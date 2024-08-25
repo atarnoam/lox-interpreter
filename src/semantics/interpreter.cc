@@ -5,6 +5,7 @@
 #include "src/semantics/natives.h"
 #include "src/semantics/object/lox_class.h"
 #include "src/semantics/object/lox_function.h"
+#include "src/semantics/object/lox_instance.h"
 #include "src/semantics/return.h"
 #include "src/tp_utils.h"
 
@@ -206,6 +207,16 @@ void Interpreter::visit_call_expr(const Expr::Call &expr) {
     }
 
     expr_result = function->call(*this, arguments);
+}
+
+void Interpreter::visit_get_expr(const Expr::Get &expr) {
+    LoxObject object = evaluate(expr.object);
+
+    if (not object.holds_alternative<std::shared_ptr<LoxInstance>>()) {
+        throw RuntimeError(expr.name, "Only instances have properties.");
+    }
+    auto instance = object.get<std::shared_ptr<LoxInstance>>();
+    expr_result = instance->get(expr.name);
 }
 
 void Interpreter::visit_variable_expr(const Expr::Variable &variable) {

@@ -278,6 +278,7 @@ int main(int argc, char **argv) {
             "Binary   : Expr left, Token op, Expr right",
             "Call     : Expr callee, Token paren, "
             "std::vector<std::shared_ptr<Expr>> arguments",
+            "Get        : Expr object, Token name",
             "Grouping : Expr expression",
             "Lambda   : Token keyword, std::vector<Token> params, "
             "std::vector<std::shared_ptr<Stmt>> body",

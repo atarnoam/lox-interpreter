@@ -20,6 +20,7 @@ struct Expr {
     struct Assign;
     struct Binary;
     struct Call;
+    struct Get;
     struct Grouping;
     struct Lambda;
     struct Literal;
@@ -50,6 +51,13 @@ struct Expr::Call : Expr {
     std::shared_ptr<Expr> callee;
     Token paren;
     std::vector<std::shared_ptr<Expr>> arguments;
+};
+
+struct Expr::Get : Expr {
+    Get(std::shared_ptr<Expr> object, Token name);
+    virtual void accept(ExprVisitor &visitor) const override;
+    std::shared_ptr<Expr> object;
+    Token name;
 };
 
 struct Expr::Grouping : Expr {
@@ -98,6 +106,7 @@ struct ExprVisitor {
     virtual void visit_assign_expr(const Expr::Assign &) = 0;
     virtual void visit_binary_expr(const Expr::Binary &) = 0;
     virtual void visit_call_expr(const Expr::Call &) = 0;
+    virtual void visit_get_expr(const Expr::Get &) = 0;
     virtual void visit_grouping_expr(const Expr::Grouping &) = 0;
     virtual void visit_lambda_expr(const Expr::Lambda &) = 0;
     virtual void visit_literal_expr(const Expr::Literal &) = 0;

@@ -24,6 +24,13 @@ void Expr::Call::accept(ExprVisitor &visitor) const {
     visitor.visit_call_expr(*this);
 }
 
+Expr::Get::Get(std::shared_ptr<Expr> object, Token name)
+    : object(std::move(object)), name(std::move(name)) {}
+
+void Expr::Get::accept(ExprVisitor &visitor) const {
+    visitor.visit_get_expr(*this);
+}
+
 Expr::Grouping::Grouping(std::shared_ptr<Expr> expression)
     : expression(std::move(expression)) {}
 

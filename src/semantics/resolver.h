@@ -24,7 +24,7 @@ struct Scope {
     std::unordered_map<std::string, bool> map;
 };
 
-struct Resolver : ExprVisitor, StmtVisitor {
+struct Resolver final : ExprVisitor, StmtVisitor {
     Resolver(AbstractInterpreter &interpreter);
 
     void resolve(const std::shared_ptr<Expr> &expr);
@@ -42,6 +42,7 @@ struct Resolver : ExprVisitor, StmtVisitor {
     void visit_assign_expr(const Expr::Assign &) override;
     void visit_binary_expr(const Expr::Binary &) override;
     void visit_call_expr(const Expr::Call &) override;
+    void visit_get_expr(const Expr::Get &) override;
     void visit_grouping_expr(const Expr::Grouping &) override;
     void visit_lambda_expr(const Expr::Lambda &) override;
     void visit_literal_expr(const Expr::Literal &) override;

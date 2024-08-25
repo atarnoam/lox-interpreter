@@ -43,6 +43,8 @@ void Resolver::visit_call_expr(const Expr::Call &expr) {
     }
 }
 
+void Resolver::visit_get_expr(const Expr::Get &expr) { resolve(expr.object); }
+
 void Resolver::visit_grouping_expr(const Expr::Grouping &expr) {
     resolve(expr.expression);
 }

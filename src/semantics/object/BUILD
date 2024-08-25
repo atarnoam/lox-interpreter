@@ -102,5 +102,6 @@ cc_library(
     srcs = ["lox_instance.cc"],
     deps = [
         ":lox_instance_h",
+        "//src/semantics:runtime_error",
     ],
 )

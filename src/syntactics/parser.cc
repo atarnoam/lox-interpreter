@@ -347,6 +347,9 @@ std::shared_ptr<Expr> Parser::call() {
     while (true) {
         if (match(LEFT_PAREN)) {
             expr = finish_call(std::move(expr));
+        } else if (match(DOT)) {
+            Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+            expr = std::make_shared<Expr::Get>(expr, name);
         } else {
             break;
         }

@@ -1,9 +1,19 @@
 #include "lox_instance.h"
 
-LoxInstance::LoxInstance(const LoxClass *lclass) : lclass(lclass) {}
+#include "src/semantics/runtime_error.h"
+
+LoxInstance::LoxInstance(const LoxClass *lclass) : lclass(lclass), fields() {}
 
 std::string LoxInstance::to_string() const {
     return lclass->to_string() + " instance";
+}
+
+LoxObject LoxInstance::get(Token name) const {
+    if (!fields.contains(name.lexeme)) {
+        throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
+    }
+
+    return fields.at(name.lexeme);
 }
 
 std::ostream &operator<<(std::ostream &os, const LoxInstance &callable) {
