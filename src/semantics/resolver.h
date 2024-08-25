@@ -37,6 +37,7 @@ struct Resolver final : ExprVisitor, StmtVisitor {
     enum class FunctionType {
         NONE,
         FUNCTION,
+        METHOD,
     };
 
     void visit_assign_expr(const Expr::Assign &) override;
@@ -68,6 +69,8 @@ struct Resolver final : ExprVisitor, StmtVisitor {
     void define(const Token &var);
 
     void resolve_local(const Expr &expr, const Token &token);
+
+    void resolve_function(const Stmt::Function &function, FunctionType type);
     void resolve_function(const std::vector<Token> &params,
                           const std::vector<std::shared_ptr<Stmt>> &body,
                           FunctionType type);

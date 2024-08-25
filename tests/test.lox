@@ -13,4 +13,6 @@ class A {
 
 var g = twice(fun() {print "Hello!";});
 g();
-print A;
+
+var a = A();
+print a.f(5);

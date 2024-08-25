@@ -9,11 +9,16 @@ std::string LoxInstance::to_string() const {
 }
 
 LoxObject LoxInstance::get(Token name) const {
-    if (!fields.contains(name.lexeme)) {
-        throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
+    // Fields shadow methods.
+    if (fields.contains(name.lexeme)) {
+        return fields.at(name.lexeme);
     }
 
-    return fields.at(name.lexeme);
+    if (auto method = lclass->find_method(name.lexeme)) {
+        return method;
+    }
+
+    throw RuntimeError(name, "Undefined property '" + name.lexeme + "'.");
 }
 
 void LoxInstance::set(Token name, const LoxObject &value) {

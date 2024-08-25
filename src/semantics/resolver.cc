@@ -92,6 +92,10 @@ void Resolver::visit_expression_stmt(const Stmt::Expression &stmt) {
 void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     declare(stmt.name);
     define(stmt.name);
+
+    for (const auto &method : stmt.methods) {
+        resolve_function(*method, FunctionType::METHOD);
+    }
 }
 
 void Resolver::visit_if_stmt(const Stmt::If &stmt) {
@@ -104,7 +108,7 @@ void Resolver::visit_function_stmt(const Stmt::Function &stmt) {
     declare(stmt.name);
     define(stmt.name);
 
-    resolve_function(stmt.params, stmt.body, FunctionType::FUNCTION);
+    resolve_function(stmt, FunctionType::FUNCTION);
 }
 
 void Resolver::visit_print_stmt(const Stmt::Print &stmt) {
@@ -167,6 +171,11 @@ void Resolver::resolve_local(const Expr &expr, const Token &token) {
                                 static_cast<int>(scopes.rbegin() - scope_it));
         }
     }
+}
+
+void Resolver::resolve_function(const Stmt::Function &function,
+                                FunctionType type) {
+    resolve_function(function.params, function.body, type);
 }
 
 void Resolver::resolve_function(const std::vector<Token> &params,

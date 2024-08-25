@@ -271,8 +271,15 @@ void Interpreter::visit_block_stmt(const Stmt::Block &block) {
 
 void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
     curr_environment->define(stmt.name.lexeme, LoxNull{});
+
+    LoxClass::MethodMap methods;
+    for (const auto &method : stmt.methods) {
+        methods[method->name.lexeme] =
+            std::make_shared<LoxFunction>(*method, curr_environment);
+    }
+
     std::shared_ptr<LoxCallable> lox_class =
-        std::make_shared<LoxClass>(stmt.name.lexeme);
+        std::make_shared<LoxClass>(stmt.name.lexeme, methods);
     curr_environment->assign(stmt.name, lox_class);
 }
 

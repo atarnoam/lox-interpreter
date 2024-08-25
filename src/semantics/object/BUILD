@@ -65,6 +65,7 @@ cc_library(
     deps = [
         ":lox_callable",
         ":lox_class_fwd",
+        ":lox_function",
         ":lox_object",
         "//src/semantics:abstract_interpreter",
         "//src/semantics:environment",
