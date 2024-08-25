@@ -278,8 +278,9 @@ void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
 
     LoxClass::MethodMap methods;
     for (const auto &method : stmt.methods) {
-        methods[method->name.lexeme] =
-            std::make_shared<LoxFunction>(*method, curr_environment);
+        std::string &method_name = method->name.lexeme;
+        methods[method_name] = std::make_shared<LoxFunction>(
+            *method, curr_environment, method_name == "init");
     }
 
     std::shared_ptr<LoxCallable> lox_class =

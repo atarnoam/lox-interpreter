@@ -1,4 +1,8 @@
 class A {
+  init(x) {
+    this.x = x;
+  }
+
   f() {
     return this.x;
   }
@@ -8,7 +12,6 @@ class A {
   }
 }
 
-var a = A();
-a.x = 5;
+var a = A(5);
 print a.f();
 print a.g();

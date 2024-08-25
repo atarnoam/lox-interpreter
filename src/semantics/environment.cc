@@ -45,6 +45,10 @@ LoxObject &Environment::get_at(const Token &name, int distance) {
     return ancestor(distance)->get(name);
 }
 
+LoxObject &Environment::get_at(const std::string &name, int distance) {
+    return ancestor(distance)->values.at(name);
+}
+
 Environment *Environment::ancestor(int distance) {
     Environment *environment = this;
     for (int i = 0; i < distance; ++i) {

@@ -37,6 +37,7 @@ struct Resolver final : ExprVisitor, StmtVisitor {
     enum class FunctionType {
         NONE,
         FUNCTION,
+        INITIALIZER,
         METHOD,
     };
 

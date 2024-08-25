@@ -7,14 +7,14 @@
 
 LoxFunction::LoxFunction(Token name, std::vector<Token> params,
                          std::vector<std::shared_ptr<Stmt>> body,
-                         Environment *closure)
+                         Environment *closure, bool is_initializer)
     : identifier(std::move(name)), params(std::move(params)),
-      body(std::move(body)), closure(closure) {}
+      body(std::move(body)), closure(closure), is_initializer(is_initializer) {}
 
 LoxFunction::LoxFunction(const Stmt::Function &declaration,
-                         Environment *closure)
+                         Environment *closure, bool is_initializer)
     : LoxFunction(declaration.name, declaration.params, declaration.body,
-                  closure) {}
+                  closure, is_initializer) {}
 
 LoxFunction::LoxFunction(const Expr::Lambda &declaration, Environment *closure)
     : LoxFunction(declaration.keyword, declaration.params, declaration.body,
@@ -41,8 +41,18 @@ LoxObject LoxFunction::call(AbstractInterpreter &interpreter,
         interpreter.execute_block(body, func_environment);
     } catch (const Return &return_value) {
         interpreter.curr_environment = previous_environment;
+
+        if (is_initializer) {
+            std::cout << "this" << std::endl;
+            return closure->get_at(std::string("this"), 0);
+        }
         return return_value.return_value;
     }
+
+    if (is_initializer) {
+        return closure->get_at(std::string("this"), 0);
+    }
+
     return LoxObject{};
 }
 
@@ -55,5 +65,5 @@ LoxFunction::bind(const std::pair<std::string, LoxObject> &to_bind,
     auto [name, object] = to_bind;
     new_enviroment->define(name, object);
     return std::make_shared<LoxFunction>(identifier, params, body,
-                                         new_enviroment);
+                                         new_enviroment, is_initializer);
 }

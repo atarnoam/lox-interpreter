@@ -109,7 +109,10 @@ void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     scopes.back().define("this");
 
     for (const auto &method : stmt.methods) {
-        resolve_function(*method, FunctionType::METHOD);
+        FunctionType function_type = method->name.lexeme == "init"
+                                         ? FunctionType::INITIALIZER
+                                         : FunctionType::METHOD;
+        resolve_function(*method, function_type);
     }
 
     end_scope();
@@ -139,7 +142,13 @@ void Resolver::visit_return_stmt(const Stmt::Return &stmt) {
         report_resolve_error(stmt.keyword, "Can't return from top-level code.");
     }
 
-    resolve(stmt.value);
+    if (stmt.value) {
+        if (current_function == FunctionType::INITIALIZER) {
+            report_resolve_error(stmt.keyword,
+                                 "Can't return a value from an initializer.");
+        }
+        resolve(stmt.value);
+    }
 }
 
 void Resolver::visit_var_stmt(const Stmt::Var &stmt) {

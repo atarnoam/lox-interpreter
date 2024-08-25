@@ -21,6 +21,7 @@ struct Environment {
     Environment *enclosing;
 
     LoxObject &get_at(const Token &name, int distance);
+    LoxObject &get_at(const std::string &name, int distance);
     void assign_at(const Token &name, const LoxObject &value, int distance);
 
   private:

@@ -6,8 +6,10 @@
 
 struct LoxFunction final : LoxCallable {
     LoxFunction(Token name, std::vector<Token> params,
-                std::vector<std::shared_ptr<Stmt>> body, Environment *closure);
-    LoxFunction(const Stmt::Function &declaration, Environment *closure);
+                std::vector<std::shared_ptr<Stmt>> body, Environment *closure,
+                bool is_initializer = false);
+    LoxFunction(const Stmt::Function &declaration, Environment *closure,
+                bool is_initializer = false);
     LoxFunction(const Expr::Lambda &declaration, Environment *closure);
 
     std::string to_string() const override;
@@ -27,4 +29,5 @@ struct LoxFunction final : LoxCallable {
     std::vector<Token> params;
     std::vector<std::shared_ptr<Stmt>> body;
     Environment *closure;
+    bool is_initializer;
 };
