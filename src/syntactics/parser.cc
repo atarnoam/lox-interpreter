@@ -392,6 +392,11 @@ std::shared_ptr<Expr> Parser::primary() {
     case THIS:
         expr = std::make_shared<Expr::This>(token);
         break;
+    case SUPER: {
+        consume(DOT, "Expect '.' after 'super'.");
+        Token method = consume(IDENTIFIER, "Expect superclass method name.");
+        expr = std::make_shared<Expr::Super>(token, method);
+    } break;
     default:
         throw parse_error(peek(), "Expect expression");
     }

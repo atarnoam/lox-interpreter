@@ -1,17 +1,32 @@
 class A {
-  init(x) {
-    this.x = x;
+  init() {
+    this.x = 5;
   }
 
-  f() {
-    return this.x;
-  }
-
-  g() {
-    return this.y;
+  method() {
+    print "A method";
+    print this.x;
   }
 }
 
-var a = A(5);
-print a.f();
-print a.g();
+class B < A {
+  method() {
+    print "B method";
+  }
+
+  test() {
+    print super.method;
+    super.method();
+  }
+}
+
+class C < B {}
+
+var c = C();
+c.x = 3;
+c.test();
+
+var x = 1;
+{
+  print x;
+}

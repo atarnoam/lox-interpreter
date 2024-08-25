@@ -65,6 +65,10 @@ void Resolver::visit_set_expr(const Expr::Set &expr) {
     resolve(expr.object);
 }
 
+void Resolver::visit_super_expr(const Expr::Super &expr) {
+    resolve_local(expr, expr.keyword);
+}
+
 void Resolver::visit_this_expr(const Expr::This &expr) {
     if (current_class == ClassType::NONE) {
         report_resolve_error(expr.keyword,
@@ -105,13 +109,19 @@ void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     declare(stmt.name);
     define(stmt.name);
 
-    if (stmt.superclass != nullptr) {
-        if (stmt.name.lexeme == stmt.superclass->name.lexeme) {
-            report_resolve_error(stmt.superclass->name,
-                                 "A class can't inherit from itself.");
-        }
+    if ((stmt.superclass != nullptr) and
+        (stmt.name.lexeme == stmt.superclass->name.lexeme)) {
+        report_resolve_error(stmt.superclass->name,
+                             "A class can't inherit from itself.");
+    }
 
+    if (stmt.superclass != nullptr) {
         resolve(stmt.superclass);
+    }
+
+    if (stmt.superclass != nullptr) {
+        begin_scope();
+        scopes.back().define("super");
     }
 
     begin_scope();
@@ -125,6 +135,10 @@ void Resolver::visit_class_stmt(const Stmt::Class &stmt) {
     }
 
     end_scope();
+
+    if (stmt.superclass != nullptr) {
+        end_scope();
+    }
 
     current_class = enclosing_class;
 }
@@ -205,7 +219,7 @@ void Resolver::resolve_local(const Expr &expr, const Token &token) {
          ++scope_it) {
         if (scope_it->in_scope(token.lexeme)) {
             interpreter.resolve(&expr,
-                                static_cast<int>(scopes.rbegin() - scope_it));
+                                static_cast<int>(scope_it - scopes.rbegin()));
         }
     }
 }

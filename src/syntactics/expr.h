@@ -26,6 +26,7 @@ struct Expr {
     struct Literal;
     struct Logical;
     struct Set;
+    struct Super;
     struct This;
     struct Unary;
     struct Variable;
@@ -99,6 +100,13 @@ struct Expr::Set : Expr {
     std::shared_ptr<Expr> value;
 };
 
+struct Expr::Super : Expr {
+    Super(Token keyword, Token method);
+    virtual void accept(ExprVisitor &visitor) const override;
+    Token keyword;
+    Token method;
+};
+
 struct Expr::This : Expr {
     This(Token keyword);
     virtual void accept(ExprVisitor &visitor) const override;
@@ -128,6 +136,7 @@ struct ExprVisitor {
     virtual void visit_literal_expr(const Expr::Literal &expr) = 0;
     virtual void visit_logical_expr(const Expr::Logical &expr) = 0;
     virtual void visit_set_expr(const Expr::Set &expr) = 0;
+    virtual void visit_super_expr(const Expr::Super &expr) = 0;
     virtual void visit_this_expr(const Expr::This &expr) = 0;
     virtual void visit_unary_expr(const Expr::Unary &expr) = 0;
     virtual void visit_variable_expr(const Expr::Variable &expr) = 0;

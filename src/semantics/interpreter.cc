@@ -185,6 +185,22 @@ void Interpreter::visit_set_expr(const Expr::Set &set) {
     expr_result = value;
 }
 
+void Interpreter::visit_super_expr(const Expr::Super &expr) {
+    int distance = locals.at(&expr);
+    auto superclass = curr_environment->get_at(std::string("super"), distance)
+                          .get<LoxClass>();
+
+    auto object = curr_environment->get_at(std::string("this"), distance - 1);
+
+    auto method = superclass->find_method(expr.method.lexeme);
+
+    if (method == nullptr) {
+        throw RuntimeError(expr.method,
+                           "Undefined property '" + expr.method.lexeme + "'.");
+    }
+    expr_result = method->bind({"this", object}, environments);
+}
+
 void Interpreter::visit_this_expr(const Expr::This &expr) {
     expr_result = lookup_variable(expr.keyword, &expr);
 }
@@ -277,6 +293,7 @@ void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
     std::shared_ptr<LoxClass> superclass = nullptr;
     if (stmt.superclass != nullptr) {
         LoxObject superclass_obj = evaluate(stmt.superclass);
+
         if (!superclass_obj.holds_alternative<LoxClass>()) {
             throw RuntimeError(stmt.superclass->name,
                                "Superclass must be a class.");
@@ -285,6 +302,11 @@ void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
     }
 
     curr_environment->define(stmt.name.lexeme, LoxNull{});
+
+    if (stmt.superclass != nullptr) {
+        curr_environment = environments.add_environment(curr_environment);
+        curr_environment->define("super", superclass);
+    }
 
     LoxClass::MethodMap methods;
     for (const auto &method : stmt.methods) {
@@ -295,6 +317,11 @@ void Interpreter::visit_class_stmt(const Stmt::Class &stmt) {
 
     std::shared_ptr<LoxCallable> lox_class =
         std::make_shared<LoxClass>(stmt.name.lexeme, superclass, methods);
+
+    if (superclass != nullptr) {
+        curr_environment = curr_environment->enclosing;
+    }
+
     curr_environment->assign(stmt.name, lox_class);
 }
 

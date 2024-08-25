@@ -52,6 +52,7 @@ struct Resolver final : ExprVisitor, StmtVisitor {
     void visit_literal_expr(const Expr::Literal &expr) override;
     void visit_logical_expr(const Expr::Logical &expr) override;
     void visit_set_expr(const Expr::Set &expr) override;
+    void visit_super_expr(const Expr::Super &expr) override;
     void visit_this_expr(const Expr::This &expr) override;
     void visit_unary_expr(const Expr::Unary &expr) override;
     void visit_variable_expr(const Expr::Variable &expr) override;

@@ -70,6 +70,13 @@ void Expr::Set::accept(ExprVisitor &visitor) const {
     visitor.visit_set_expr(*this);
 }
 
+Expr::Super::Super(Token keyword, Token method)
+    : keyword(std::move(keyword)), method(std::move(method)) {}
+
+void Expr::Super::accept(ExprVisitor &visitor) const {
+    visitor.visit_super_expr(*this);
+}
+
 Expr::This::This(Token keyword) : keyword(std::move(keyword)) {}
 
 void Expr::This::accept(ExprVisitor &visitor) const {
