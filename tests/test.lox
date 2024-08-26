@@ -1,32 +1,11 @@
-class A {
-  init() {
-    this.x = 5;
-  }
-
-  method() {
-    print "A method";
-    print this.x;
-  }
+fun fib(n) {
+  if (n <= 1) { return n; }
+  return fib(n-1) + fib(n-2);
 }
 
-class B < A {
-  method() {
-    print "B method";
-  }
+print fib(10);
 
-  test() {
-    print super.method;
-    super.method();
-  }
-}
-
-class C < B {}
-
-var c = C();
-c.x = 3;
-c.test();
-
-var x = 1;
-{
-  print x;
-}
+var start = clock();
+fib(40);
+var end = clock();
+print end - start;
